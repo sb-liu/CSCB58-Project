@@ -1,0 +1,130 @@
+CSCB58 Project File: Summer 2017
+
+Team Member A
+-------------
+First Name: Stephen
+Last Name: Liu
+Student Number: 1003579291
+UofT E-mail Address: sb.liu@mail.utoronto.ca
+
+
+Team Member B
+-------------
+First Name: Lennard
+Last Name: Chan
+Student Number: 1003630966
+UofT E-mail Address: lennard.chan@mail.utoronto.ca
+
+Team Member C (Optional)
+-------------
+First Name: Jacqueline
+Last Name: Chan
+Student Number: 1003150190
+UofT E-mail Address: jacquelinee.chan@mail.utoronto.ca
+
+Team Member D (Optional)
+-------------
+First Name: Youyee
+Last Name: Chen
+Student Number: 1002938299
+UofT E-mail Address: youyee.chen@mail.utoronto.ca
+
+Project Details
+---------------
+Project Title: B o u n c e
+Colour Bounce 
+
+Project Description: 
+
+There is a bouncing ball that changes colours on each bounce. You can 
+land on the (static) platforms only of the same colour. 
+The colour of the platforms will change randomly, so you must decide on 
+which platform to land on carefully.
+To land on a platform, you must press the key associated with that 
+platform at a certain time.
+If the ball falls to the bottom then you lose. You get points the longer 
+you bounce.
+
+Video URL:
+
+Code URL (please upload a copy of this file to your repository at the 
+end of the project as well, it will
+serve as a useful resource for future development):
+
+
+Proposal
+--------
+
+What do you plan to have completed by the end of the first lab session?: 
+
+Draw a static screen of the game. (Drawing ball and platforms using VGA)
+
+What do you plan to have completed by the end of the second lab 
+session?: 
+
+Implement module that will randomize the platform and ball colours.
+
+What do you plan to have completed by the end of the third lab session?: 
+
+Implement the animation part of this project (i.e. the bouncing part of 
+the ball),
+and also the module to keep track of the points of the bouncing ball 
+(i.e. when the ball successfully 
+lands on a platform, or when it fails).
+
+What is your backup plan if things don’t work out as planned? 
+
+Goal: Try to book the Makerspace boards to make up the lost time.
+If this is not possible then at least meet up to try to rework our 
+plan/code.
+
+If the backbone of our plan doesn’t work out as planned, we may have to 
+turn to similar, alternate ideas.
+We will pick rationally according to what we have already completed and 
+what is not really working out. 
+
+One possible alternate idea: 
+
+- A ball jump/climb upwards onto available randomly generated platforms 
+until the user misses a platform. 
+These platforms are not static and new platforms will populate as the 
+ball escalates. The higher the ball, the more points.
+
+
+What hardware will you need beyond the DE2 board 
+
+(be sure to e-mail Brian if it’s anything beyond the basics to make sure 
+there’s enough to go around)
+- VGA
+
+
+Motivations
+-----------
+How does this project relate to the material covered in CSCB58?:
+
+Why is this project interesting/cool (for CSCB58 students, and for non 
+CSCB58 students?):
+
+Why did you personally choose this project?:
+
+Attributions
+------------
+Provide a complete list of any external resources your project used 
+(attributions should also be included in your
+code).  
+
+Updates
+-------
+
+<Example update. Delte this and add your own updates after each lab 
+session>
+Week 1: We built the hardware and tested the sensors. The distance 
+sensor we had intended to use didn't work as
+expected (wasn't precise enough at further distances, only seems to work 
+accurately within 5-10cm), so instead
+we've decided to change the project to use a light sensor instead. Had 
+trouble getting the FSM to work (kept
+getting stuck in state 101, took longer to debug than expected), so we 
+may not be able to add the
+high score feature, have updated that in the project description as 
+(optional).
