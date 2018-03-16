@@ -384,6 +384,7 @@ module updater (
 			// Going Down
 			// Settin new positions of the ball
 		
+			
 			if (touch) begin
 				// Color S w a p
 				new_color_ball = //random
@@ -391,6 +392,8 @@ module updater (
 				// Swith the direction (we reset direction when we hit the counter)
 				down = ~down;
 			end
+			
+			
 			
 
 			prev_ball = curr_ball;
@@ -405,6 +408,13 @@ module updater (
 			else begin
 				new_curr_ball = curr_ball - 1;		
 			end
+			
+			
+			if (new_curr_ball == //maximum height)
+				down = ~down;
+			if (new_curr_ball == // minimum height)
+				down = `down
+			
 			
 			// Code for the counter
 		end
