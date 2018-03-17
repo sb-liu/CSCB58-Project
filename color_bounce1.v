@@ -35,8 +35,8 @@ module color_bounce1
 	output	[9:0]	VGA_G;	 				//	VGA Green[9:0]
 	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
 	
-	wire resetn;
-	assign resetn = KEY[0];
+	//wire resetn;
+	//assign resetn = KEY[0];
 	
 	
 	// Initial input wires
@@ -52,7 +52,7 @@ module color_bounce1
 	//assign colour = SW[9:7]; // to VGA: input colour value directly to VGA
 	
 	wire writeEn;
-	assign writeEn = KEY[1]; // to VGA: writeEnable/plot signal for the VGA
+	assign writeEn = ; 1'b1// to VGA: writeEnable/plot signal for the VGA
 	
 	
 	// Wires to communicate between controller and datapath
@@ -70,7 +70,7 @@ module color_bounce1
 	// Define the number of colours as well as the initial background
 	// image file (.MIF) for the controller.
 	vga_adapter VGA(
-			.resetn(resetn),
+			.resetn(1'b0),
 			.clock(CLOCK_50),
 			.colour(colour),
 			.x(x),
@@ -108,19 +108,38 @@ module color_bounce1
         .draw_plat(draw_plat),
     );
 
-	
+	wire gameover;
 	wire [7:0] prev_ball_memout, curr_ball_memout, prev_ball_up2mem, curr_ball_up2mem;
 	wire [2:0] color_ball_memout, color_ball_up2mem;
-	wire [11:0] color_plats_memout,color_plats_up2mem;
+	wire [11:0] color_plats_memout,color_plats_up2mem,score_up2mem, score_memout;
 	wire [27:0] position_plats_memout, position_plats_up2mem;
 	assign prev_ball_up2mem = 8'b00010111;
 	assign curr_ball_up2mem = 8'b01000010;
 	assign color_ball_up2mem = 3'b001;
 	assign color_plats_up2mem = 12'b100001010011;
 	assign position_plats_up2mem = 28'b0011000000001100001010000111;
+    assign score_up2mem = 
 	
+    updater up_game(
+        .curr_ball(curr_ball_memout),
+        .position_plats(position_plats_memout),
+        .color_plats(color_plats_memout),
+        .color_ball(color_ball_memout),
+        .statesig(statesig),
+        .clk(CLOCK_50),
+        .keys(KEY[3:0]),
+        .curr_score(score_memout),
+        .prev_ball(prev_ball_up2mem),
+        .new_curr_ball(curr_ball_up2mem),
+        .new_color_plats(color_plats_up2mem),
+        .new_color_ball(color_ball_up2mem),
+        .gameover(gameover),
+        .next_score(score_up2mem)
+    );
+    
 	 memory mem_game(
 			.clk(CLOCK_50),
+            .reset(SW[0]),
 			.prev_ball_in(prev_ball_up2mem),
 			.curr_ball_in(curr_ball_up2mem),
 			.color_ball_in(color_ball_up2mem),
@@ -130,7 +149,9 @@ module color_bounce1
 			.curr_ball_out(curr_ball_memout),
 			.color_ball_out(color_ball_memout),
 			.color_plats_out(color_plats_memout),
-			.position_plats_out(position_plats_memout)	
+			.position_plats_out(position_plats_memout),
+            .score_in(score_up2mem),
+            .score_out(score_memout)
 	 );
 	 
     datapath d0(
@@ -150,7 +171,6 @@ module color_bounce1
         .statesig(statesig)
     );
 endmodule
-
 
 
 //-----------------------------------------------------------------------------------------
