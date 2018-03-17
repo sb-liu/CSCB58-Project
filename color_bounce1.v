@@ -108,14 +108,39 @@ module color_bounce1
         .draw_plat(draw_plat),
     );
 
+	
+	wire [7:0] prev_ball_memout, curr_ball_memout, prev_ball_up2mem, curr_ball_up2mem;
+	wire [2:0] color_ball_memout, color_ball_up2mem;
+	wire [11:0] color_plats_memout,color_plats_up2mem;
+	wire [27:0] position_plats_memout, position_plats_up2mem;
+	assign prev_ball_up2mem = 8'b00010111;
+	assign curr_ball_up2mem = 8'b01000010;
+	assign color_ball_up2mem = 3'b001;
+	assign color_plats_up2mem = 12'b100001010011;
+	assign position_plats_up2mem = 28'b0011000000001100001010000111;
+	
+	 memory mem_game(
+			.clk(CLOCK_50),
+			.prev_ball_in(prev_ball_up2mem),
+			.curr_ball_in(curr_ball_up2mem),
+			.color_ball_in(color_ball_up2mem),
+			.color_plats_in(color_plats_up2mem),
+			.position_plats_in(position_plats_up2mem),
+			.prev_ball_out(prev_ball_memout),
+			.curr_ball_out(curr_ball_memout),
+			.color_ball_out(color_ball_memout),
+			.color_plats_out(color_plats_memout),
+			.position_plats_out(position_plats_memout)	
+	 );
+	 
     datapath d0(
         .clk(CLOCK_50),
         .resetn(resetn),
-        .prev_ball(8'b00010111),
-        .curr_ball(8'b01000010),
-        .color_ball(3'b001),
-        .color_plats(12'b100001010011),
-        .position_plats(28'b0011000000001100001010000111),
+        .prev_ball(prev_ball_memout),
+        .curr_ball(curr_ball_memout),
+        .color_ball(color_ball_memout),
+        .color_plats(color_plats_memout),
+        .position_plats(position_plats_memout),
         .erase_ball(erase_ball),
         .draw_ball(draw_ball),
         .draw_plat(draw_plat),
@@ -315,28 +340,6 @@ module datapath(
 					statesig <= 2'b10; // stay in current state
 				end
 			end
-			
-			/* original lab 6 code - for reference
-            if (ld_x) begin
-					finished <= 1'b0; // starting a new drawing. reset "finished" signal
-					counter <= 4'b0; // reset counter
-                x_reg <= {1'b0, data_in}; // add the zero
-            end    
-            if (ld_y)
-                y_reg <= data_in;
-				
-			if (plot)
-				if (counter == 4'b1111) begin
-					finished <= 1'b1;
-					counter <= 4'b0;
-				end
-				else begin
-					x_reg <= x_reg + counter[1:0];
-					y_reg <= y_reg + counter[3:2];
-					counter <= counter + 1'b1;
-				end
-				*/
         end
     end
-	
 endmodule
