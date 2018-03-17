@@ -351,24 +351,22 @@ endmodule
 	
 	
 module updater (
-	input curr_ball,
-	input position_plats,
-	input color_plats,
-	input color_ball,
-	input update, // signal from controller to update values
+	input[7:0] curr_ball,
+	input[27:0] position_plats,
+	input[11:0] color_plats,
+	input[2:0] color_ball,
+	input[1:0] statesig, // signal from controller to update values
 	input clk,
 	input[3:0] keys,
-	output prev_ball,
-	output new_curr_ball,
-	output new_color_plats,
-	output new_color_ball
+	output[7:0] prev_ball,
+	output[7:0] new_curr_ball,
+	output[11:0] new_color_plats,
+	output[2:0] new_color_ball
 );	
-
-	reg down;
-	reg touch;
+    reg[3:0] counter = 0;
 	
 	always@(posedge clk) begin
-		if(update) begin
+		if(statesig == 2'b10) begin
 			//Key 3 pressed 0111
 			//Key 2 pressed 1011
 			//Key 1 pressed 1101
