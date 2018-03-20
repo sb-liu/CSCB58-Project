@@ -2,7 +2,7 @@ module color_rand(
     output [11:0] new_color_plats,
     output [2:0] new_color_ball
     );
-    new_color_ball = $random%8[2:0];
+    assign new_color_ball = $random%8[2:0];
     reg [1:0] position = 2'b00;
     reg [2:0] plat1_color = 3'b000;
     reg [2:0] plat2_color = 3'b000;
@@ -50,7 +50,7 @@ module color_rand(
             3:  begin
                     new_color_plats[11:9] = new_color_ball;
                     new_color_plats[5:3] = plat1_color;
-                    new_color_plats[2:0 = plat2_color;
+                    new_color_plats[2:0] = plat2_color;
                     new_color_plats[8:6] = plat3_color;
                 end
         endcase

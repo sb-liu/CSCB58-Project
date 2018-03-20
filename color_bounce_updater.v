@@ -7,22 +7,23 @@ module updater (
 	input clk,
 	input[3:0] keys,
     input [31:0] curr_score,
-	output[7:0] reg prev_ball,
-	output[7:0] reg new_curr_ball,
-	output[11:0] reg new_color_plats,
-	output[2:0] reg new_color_ball,
+	output reg[7:0] prev_ball,
+	output reg[7:0] new_curr_ball,
+	output reg[11:0] new_color_plats,
+	output reg[2:0] new_color_ball,
     output reg gameover,
-    output reg next_score
+    output reg next_score,
+	 output reg idletoerase
 );	
-    reg[3:0] up_counter = 0;
-	reg touch;
-    gameover = 0;
+   reg[5:0] up_counter;
+   reg touch;
     
 	always@(posedge clk) begin
-        touch = 0;
-        score = 0;
-		if(statesig == 2'b10) begin
-            if (up_counter > 0) counter <= counter - 1;
+		idletoerase = 0;
+      touch = 0;
+		
+		if(statesig == 2'b11) begin
+         if (up_counter > 0) up_counter <= up_counter - 1;
 			//Key 3 pressed 0111
 			//Key 2 pressed 1011
 			//Key 1 pressed 1101
@@ -41,11 +42,11 @@ module updater (
 			
 			if (touch) begin
 				// Color S w a p
-				new_color_ball = //random
-				new_color_plats = //random
+				new_color_ball = color_ball;//random
+				new_color_plats = color_plats;//random
 				// Swith the direction (we reset direction when we hit the counter)
-				counter = 20;
-                next_score = curr_score + 1;
+				up_counter <= 50;
+            next_score = curr_score + 1;
 			end
             else begin
                 new_color_ball = color_ball;
@@ -63,12 +64,13 @@ module updater (
 			
 			// Going up
 			else begin
-				new_curr_ball = curr_ball - 1;		
+				new_curr_ball = curr_ball - 1;	
+				gameover = 0;
 			end
 			if (new_curr_ball >= 7'd116)
 				gameover = 1;
 			
-			// Code for the counter
+			idletoerase = 1;
 		end
 	end
 endmodule
