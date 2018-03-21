@@ -1,3 +1,54 @@
+module color_randomize(
+	input [9:0] SW,
+	output [17:0] LEDR
+);
+
+	lfsr ya(
+		.out(LEDR[7:0]),
+		.enable(SW[1]),
+		.clk(SW[0]),
+		.reset(SW[9])
+	);
+		
+endmodule
+
+//-----------------------------------------------------
+// Design Name : lfsr
+// File Name   : lfsr.v
+// Function    : Linear feedback shift register
+// Coder       : Deepak Kumar Tala
+//-----------------------------------------------------
+module lfsr    (
+out             ,  // Output of the counter
+enable          ,  // Enable  for counter
+clk             ,  // clock input
+reset              // reset input
+);
+
+//----------Output Ports--------------
+output [7:0] out;
+//------------Input Ports--------------
+
+input enable, clk, reset;
+//------------Internal Variables--------
+reg [7:0] out = 8'b10101001;
+wire linear_feedback;
+
+//-------------Code Starts Here-------
+assign linear_feedback = (out[7] ^ out[3]);
+wire[3:0] no = out[7:4];
+wire[3:0] xno = ~out[3:0];
+always @(posedge clk)
+if (reset) begin // active high reset
+  out <= 8'b0 ;
+end else if (enable) begin
+  out <= {no[0], xno[0],no[1], xno[1],no[2], xno[2],no[3], xno[3]};
+end 
+
+endmodule // End Of Module counter
+
+
+/*
 module color_rand(
     output [11:0] new_color_plats,
     output [2:0] new_color_ball
@@ -57,3 +108,4 @@ module color_rand(
     end
 
 endmodule
+*/
