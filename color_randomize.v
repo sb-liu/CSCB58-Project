@@ -12,100 +12,91 @@ module color_randomize(
 		
 endmodule
 
-//-----------------------------------------------------
-// Design Name : lfsr
-// File Name   : lfsr.v
-// Function    : Linear feedback shift register
-// Coder       : Deepak Kumar Tala
-//-----------------------------------------------------
-module lfsr    (
-out             ,  // Output of the counter
-enable          ,  // Enable  for counter
-clk             ,  // clock input
-reset              // reset input
+module pseudo_rand(
+	out,  
+	enable,  
+	clk,  
+	reset,
+	seed
 );
 
-//----------Output Ports--------------
-output [7:0] out;
-//------------Input Ports--------------
+	output [7:0] out;
 
-input enable, clk, reset;
-//------------Internal Variables--------
-reg [7:0] out = 8'b10101001;
-wire linear_feedback;
+	input enable, clk, reset;
+	input [7:0] seed
+	//reg [7:0] out = 8'b10101001;
+	reg [7:0] out = seed;
+	wire linear_feedback;
 
-//-------------Code Starts Here-------
-assign linear_feedback = (out[7] ^ out[3]);
-wire[3:0] no = out[7:4];
-wire[3:0] xno = ~out[3:0];
-always @(posedge clk)
-if (reset) begin // active high reset
-  out <= 8'b0 ;
-end else if (enable) begin
-  out <= {no[0], xno[0],no[1], xno[1],no[2], xno[2],no[3], xno[3]};
-end 
+	assign linear_feedback = (out[7] ^ out[3]);
+	wire[3:0] no = out[7:4];
+	wire[3:0] xno = ~out[3:0];
+	always @(posedge clk)
+		if (reset) begin 
+		  out <= 8'b0 ;
+		end 
+		
+		else if (enable) begin
+		out <= {no[0], xno[0],no[1], xno[1],no[2], xno[2],no[3], xno[3]};
+		end 
 
-endmodule // End Of Module counter
+endmodule 
 
 
-/*
 module color_rand(
-    output [11:0] new_color_plats,
-    output [2:0] new_color_ball
+    new_color_plats,
+    new_color_ball,
+    clk
     );
-    assign new_color_ball = $random%8[2:0];
-    reg [1:0] position = 2'b00;
+    pseudo_rand my_rand(
+	.out(rand_out_wire),
+	.enable(1'b1),
+	.clk(clk),
+	.reset(1'b0),
+	.seed(8'b10101001)	
+	);
+
+    output reg [11:0] new_color_plats;
+    output reg [2:0] new_color_ball;
+    wire [7:0] rand_out_wire;
+    reg [7:0] rand_out = rand_out_wire;
+    reg [1:0] position = rand_out[1:0];
     reg [2:0] plat1_color = 3'b000;
     reg [2:0] plat2_color = 3'b000;
     reg [2:0] plat3_color = 3'b000;
     always @ ( * ) begin
-        // Get color of the ball
-        new_color_ball = $random%7[2:0];
-        // if the color is 000, i.e. it is black
-        // get a new color
-        // do the same and randomize the colors for the other platforms
-        while (new_color_ball != 3'b000) begin
-            new_color_ball = $random%7[2:0];
-        end
-        while (plat1_color != 3'b000) begin
-            plat1_color = $random%7[2:0];
-        end
-        while (plat2_color != 3'b000) begin
-            plat2_color = $random%7[2:0];
-        end
-        while (plat3_color != 3'b000) begin
-            plat3_color = $random%7[2:0];
-        end
-
-
-        position = $random%3[1:0]
+	
         case (position)
             0: begin
                     new_color_plats[2:0] = new_color_ball;
                     new_color_plats[5:3] = plat1_color;
                     new_color_plats[8:6] = plat2_color;
                     new_color_plats[11:9] = plat3_color;
+		    position = rand_out[4:3];
                 end
             1: begin
                     new_color_plats[5:3] = new_color_ball;
                     new_color_plats[2:0] = plat1_color;
                     new_color_plats[8:6] = plat2_color;
                     new_color_plats[11:9] = plat3_color;
+                    position = rand_out[3:2];
                 end
             2:  begin
                     new_color_plats[8:6] = new_color_ball;
                     new_color_plats[5:3] = plat1_color;
                     new_color_plats[2:0] = plat2_color;
                     new_color_plats[11:9] = plat3_color;
+		    position = rand_out[7:6];
                 end
             3:  begin
                     new_color_plats[11:9] = new_color_ball;
                     new_color_plats[5:3] = plat1_color;
                     new_color_plats[2:0] = plat2_color;
                     new_color_plats[8:6] = plat3_color;
+                    position = rand_out[5:4];
                 end
         endcase
     end
 
 endmodule
-*/
+
