@@ -171,7 +171,7 @@ module color_bounce1
 	
 	wire adjustedClock1;
 	rateDivider first(
-        .counter(28'd5000000),
+        .counter(28'd750000),
         .clock(CLOCK_50),
         .out(adjustedClock1)
     );
@@ -227,11 +227,11 @@ module control(
             
                 S_ERASE_BALL: next_state = (statesig == 2'b01) ? S_DRAW_PLAT : S_ERASE_BALL;
 				
-				S_DRAW_PLAT: next_state = (statesig == 2'b10) ? S_DRAW_BALL : S_DRAW_PLAT;
+					S_DRAW_PLAT: next_state = (statesig == 2'b10) ? S_DRAW_BALL : S_DRAW_PLAT;
                 
                 S_DRAW_BALL: next_state = (statesig == 2'b11) ? S_IDLE : S_DRAW_BALL;
 					 
-				S_IDLE : next_state = (idletoerase == 1'b1) ? S_ERASE_BALL : S_IDLE;
+					S_IDLE : next_state = (idletoerase == 1'b1) ? S_ERASE_BALL : S_IDLE;
            
             default:     next_state = S_ERASE_BALL;
         endcase
@@ -245,7 +245,7 @@ module control(
         draw_ball = 1'b0;
 
         case (current_state)
-            S_ERASE_BALL: erase_ball = 1'b1;
+         S_ERASE_BALL: erase_ball = 1'b1;
 			S_DRAW_BALL: draw_ball = 1'b1;
 			S_DRAW_PLAT: draw_plat = 1'b1;
 			// default:    // don't need default since we already made sure all of our outputs were assigned a value at the start of the always block
@@ -289,7 +289,7 @@ module datapath(
 	// initialize internal values for calculations
 	reg [3:0] counter = 4'b0000; // to count how many pixels we've drawn
 	reg [1:0] counter_plat = 2'b00; // to count how many platforms we've drawn
-	reg [7:0] original_x = 8'd128; // hard-coded x-coordinate for ball
+	reg [7:0] original_x = 8'd80; // hard-coded x-coordinate for ball
 	
     
     always@(posedge clk) begin

@@ -23,14 +23,16 @@ module memory(
             color_ball_out <= color_ball_in;
             color_plats_out <= color_plats_in;
 //           position_plats_out <= position_plats_in;
-				position_plats_out <= 28'b0011110011110010110101100100;
+//				position_plats_out <= 28'b0011110011110010110101100100;
+				position_plats_out <= 28'b0100011011110010101011101110; // 50 60 70 80
             score_out <= score_in;
          end else begin
             prev_ball_out <= curr_ball_in;
             curr_ball_out <= 0;
             color_ball_out <= 3'b111;
             color_plats_out <= 12'b001110111101;
-            position_plats_out <=  28'b0011110011110010110101100100;
+//          position_plats_out <=  28'b0011110011110010110101100100;
+				position_plats_out <= 28'b0100011011110010101011101110;
             score_out <= 0;
          end
 	end

@@ -12,17 +12,22 @@ module updater (
 	output reg[11:0] new_color_plats,
 	output reg[2:0] new_color_ball,
     output reg gameover,
-    output reg next_score,
+    output reg next_score
 );	
 	reg[5:0] up_counter;
 	reg touch;
+	wire [11:0] new_color_plats_wire;
+	wire [2:0] new_color_ball_wire;
+	color_rand myradd(
+		.new_color_plats(new_color_plats_wire),
+      .new_color_ball(new_color_ball_wire),
+      .clk(touch)
+	);
     
 	always@(posedge clk) begin
 		touch = 0;
 		
 		if(statesig == 2'b11) begin
-			// MOVED TO LINE 60 -- if (up_counter > 0) up_counter <= up_counter - 1;
-			
 			// If key is pressed, check if ball is touching corresponding platform of the same colour
 			//Key 3 pressed 0111	//Key 1 pressed 1101
 			//Key 2 pressed 1011	//Key 0 pressed 1110
@@ -36,8 +41,9 @@ module updater (
 			
 			if (touch) begin
 				// If ball is touching correct platform, Color S w a p
-				new_color_ball = color_ball;//random
-				new_color_plats = color_plats;//random
+				// ENTER CODE HERE
+				new_color_ball = new_color_ball_wire;//random
+				new_color_plats = new_color_plats_wire;//random
 				
 				// Make ball go up (direction will change back to down when counter reaches 0)
 				up_counter <= 50;
