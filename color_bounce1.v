@@ -49,17 +49,9 @@ module color_bounce1
 									// because input is loaded with KEY[3] but writeEnable/plot signal is KEY[1]
 									
 	wire [2:0] colour;
-	//assign colour = SW[9:7]; // to VGA: input colour value directly to VGA
 	
 	wire writeEn;
-	assign writeEn = 1'b1;// to VGA: writeEnable/plot signal for the VGA
-	
-	
-	// Wires to communicate between controller and datapath
-	wire load_x, load_y; // from controller to datapath to tell it to load values
-	wire plot; // from controller to datapath, to tell it to start drawing
-	wire finished; // from datapath to controller, to tell it to stop drawing
-	
+	assign writeEn = 1'b1;// to VGA: writeEnable/plot signal for the VGA	
 	
 	// Output wires to VGA
 	wire [7:0] x; // x output from datapath to VGA
@@ -106,7 +98,7 @@ module color_bounce1
         .erase_ball(erase_ball),
         .draw_ball(draw_ball),
         .draw_plat(draw_plat),
-		  .idletoerase(adjustedClock1)
+		.idletoerase(adjustedClock1)
     );
 
 	wire gameover;
@@ -140,25 +132,24 @@ module color_bounce1
         .new_color_ball(color_ball_up2mem),
         .gameover(gameover),
         .next_score(score_up2mem),
-		  .idletoerase(idletoerase)
     );
     
 	 
 	 memory mem_game(
-			.clk(CLOCK_50),
-         .reset(SW[0]),
-			.prev_ball_in(prev_ball_up2mem),
-			.curr_ball_in(curr_ball_up2mem),
-			.color_ball_in(color_ball_up2mem),
-			.color_plats_in(color_plats_up2mem),
-			.position_plats_in(position_plats_up2mem),
-			.prev_ball_out(prev_ball_memout),
-			.curr_ball_out(curr_ball_memout),
-			.color_ball_out(color_ball_memout),
-			.color_plats_out(color_plats_memout),
-			.position_plats_out(position_plats_memout),
-         .score_in(score_up2mem),
-         .score_out(score_memout)
+		.clk(CLOCK_50),
+		.reset(SW[0]),
+		.prev_ball_in(prev_ball_up2mem),
+		.curr_ball_in(curr_ball_up2mem),
+		.color_ball_in(color_ball_up2mem),
+		.color_plats_in(color_plats_up2mem),
+		.position_plats_in(position_plats_up2mem),
+		.prev_ball_out(prev_ball_memout),
+		.curr_ball_out(curr_ball_memout),
+		.color_ball_out(color_ball_memout),
+		.color_plats_out(color_plats_memout),
+		.position_plats_out(position_plats_memout),
+		.score_in(score_up2mem),
+		.score_out(score_memout)
 	 );
 	 
     datapath d0(
@@ -177,8 +168,9 @@ module color_bounce1
         .color_reg(colour),
         .statesig(statesig)
     );
-	 wire adjustedClock1;
-	 rateDivider first(
+	
+	wire adjustedClock1;
+	rateDivider first(
         .counter(28'd5000000),
         .clock(CLOCK_50),
         .out(adjustedClock1)
@@ -192,7 +184,7 @@ endmodule
 module rateDivider (counter, clock, out);
     input [27:0] counter;
     input clock;
-	 output reg out;
+	output reg out;
     reg [27:0] counterMemory;
 
 
@@ -213,7 +205,7 @@ module control(
     input clk,
     input resetn,
     input[1:0] statesig,
-	 input idletoerase,
+	input idletoerase,
     output reg erase_ball,
 	output reg draw_ball,
 	output reg draw_plat
@@ -221,10 +213,10 @@ module control(
 
     reg [1:0] current_state, next_state; 
     
-    localparam  S_ERASE_BALL     = 2'd0,
-                S_DRAW_PLAT		= 2'd1,
+    localparam  S_ERASE_BALL     	= 2'd0,
+                S_DRAW_PLAT			= 2'd1,
                 S_DRAW_BALL  		= 2'd2,
-					 S_IDLE				= 2'd3;
+				S_IDLE				= 2'd3;
                 
 
     
@@ -235,11 +227,11 @@ module control(
             
                 S_ERASE_BALL: next_state = (statesig == 2'b01) ? S_DRAW_PLAT : S_ERASE_BALL;
 				
-					 S_DRAW_PLAT: next_state = (statesig == 2'b10) ? S_DRAW_BALL : S_DRAW_PLAT;
+				S_DRAW_PLAT: next_state = (statesig == 2'b10) ? S_DRAW_BALL : S_DRAW_PLAT;
                 
                 S_DRAW_BALL: next_state = (statesig == 2'b11) ? S_IDLE : S_DRAW_BALL;
 					 
-					 S_IDLE : next_state = (idletoerase == 1'b1) ? S_ERASE_BALL : S_IDLE;
+				S_IDLE : next_state = (idletoerase == 1'b1) ? S_ERASE_BALL : S_IDLE;
            
             default:     next_state = S_ERASE_BALL;
         endcase
@@ -254,8 +246,8 @@ module control(
 
         case (current_state)
             S_ERASE_BALL: erase_ball = 1'b1;
-				S_DRAW_BALL: draw_ball = 1'b1;
-				S_DRAW_PLAT: draw_plat = 1'b1;
+			S_DRAW_BALL: draw_ball = 1'b1;
+			S_DRAW_PLAT: draw_plat = 1'b1;
 			// default:    // don't need default since we already made sure all of our outputs were assigned a value at the start of the always block
         endcase
     end // enable_signals
@@ -274,22 +266,20 @@ endmodule
 //---------------------------------------------------------------------------------------
 
 
-
-
 module datapath(
     input clk,
     input resetn,
     input [7:0] prev_ball, curr_ball,
-	 input [2:0] color_ball,
-	 input [11:0] color_plats,
-	 input [27:0] position_plats,
+	input [2:0] color_ball,
+	input [11:0] color_plats,
+	input [27:0] position_plats,
     input erase_ball,  
     input draw_ball,
-	 input draw_plat,
+	input draw_plat,
     output reg [7:0] x_reg,
     output reg [7:0] y_reg,
-	 output reg [2:0] color_reg,
-	 output reg [2:0] statesig
+	output reg [2:0] color_reg,
+	output reg [2:0] statesig
     );
     
 	// initialize color_reg and statesig
@@ -297,7 +287,7 @@ module datapath(
 	initial statesig = 2'b00;
 	
 	// initialize internal values for calculations
-   reg [3:0] counter = 4'b0000; // to count how many pixels we've drawn
+	reg [3:0] counter = 4'b0000; // to count how many pixels we've drawn
 	reg [1:0] counter_plat = 2'b00; // to count how many platforms we've drawn
 	reg [7:0] original_x = 8'd128; // hard-coded x-coordinate for ball
 	
@@ -333,7 +323,7 @@ module datapath(
 				// if we have finished drawing all the platforms, reset both counters and move to the next state
 
 			
-			// if we have not drawn all the platforms, draw the next platform
+				// if we have not drawn all the platforms, draw the next platform
 				statesig <= 2'b01; // stay in current state
 				
 				// if we have finished drawing the current platform, reset drawing counter and try to draw the next platform
