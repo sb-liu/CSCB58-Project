@@ -23,25 +23,35 @@ module pseudo_rand(
 	seed
 );
 
-	output [7:0] out;
+	output [31:0] out;
 
 	input enable, clk, reset;
 	input [7:0] seed;
-	reg [7:0] out = 8'b10110101;
+	reg [31:0] out = 32'd4;
 	wire linear_feedback;
 
-	assign linear_color_platsfeedback = (out[7] ^ out[3]);
-	wire[3:0] no = out[7:4];
-	wire[3:0] xno = ~out[3:0];
-	always @(posedge clk)
+	reg linear_color_platsfeedback1;
+	reg linear_color_platsfeedback2;
+//	wire[3:0] no = out[7:4];
+//	wire[3:0] xno = ~out[3:0];
+	reg tf;
+	reg mux2out;
+	always@(posedge clk) begin
+		tf = ~tf;
+		case(tf)
+			0:linear_color_platsfeedback1= (out[25] ^ out[10]);
+			1:linear_color_platsfeedback2= ~(out[25] ^ out[10]);
+		endcase
+	end
+	always @(posedge clk) begin
 		if (reset) begin 
-		  out <= 8'b0 ;
+		  out <= 32'd2147483647 ;
 		end 
 		
 		else if (enable) begin
-		out <= {no[0], xno[0],no[1], xno[1],no[2], xno[2],no[3], xno[3]};
+			out <= (2*(out * out) + 5*(out) + 1);
 		end 
-
+	end
 endmodule 
 
 
@@ -54,7 +64,7 @@ module color_rand(
 	 input clk;
     output reg [11:0] new_color_plats;
     output reg [2:0] new_color_ball;
-    wire [7:0] rand_out;
+    wire [31:0] rand_out;
 	 reg [1:0] position;
 	 
     pseudo_rand my_rand(
@@ -67,44 +77,44 @@ module color_rand(
     always @ ( * ) begin
         case (position)
             0: begin
-                    new_color_plats[2:0] = rand_out[3:1];
-						  new_color_ball = rand_out[3:1];
-                    new_color_plats[5:3] = rand_out[5:3];
-                    new_color_plats[8:6] = rand_out[7:5];
-                    new_color_plats[11:9] = {rand_out[6], rand_out[3], rand_out[0]};
-						  position = rand_out[4:3];
+                    new_color_plats[2:0] = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
+                    new_color_plats[5:3] = rand_out[15:8] % 8;
+                    new_color_plats[8:6] = rand_out[23:16] % 8;
+                    new_color_plats[11:9] = rand_out[31:24] % 8;
+						  position = rand_out[7:0] % 4;
                 end
             1: begin
-                    new_color_plats[5:3] = rand_out[7:5];
-						  new_color_ball = rand_out[7:5];
-                    new_color_plats[2:0] = rand_out[6:4];
-                    new_color_plats[8:6] = {rand_out[2], rand_out[3], rand_out[0]};
-                    new_color_plats[11:9] = {rand_out[5], rand_out[1], rand_out[6]};
-                    position = rand_out[3:2];
+                    new_color_plats[5:3] = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
+                    new_color_plats[2:0] = rand_out[15:8] %8;
+                    new_color_plats[8:6] = rand_out[23:16] % 8;
+                    new_color_plats[11:9] = rand_out[31:24] %8;
+                    position = rand_out[15:8] % 4;
                 end
             2:  begin
-                    new_color_plats[8:6] = {rand_out[2], rand_out[3], rand_out[0]};
-						  new_color_ball = {rand_out[2], rand_out[3], rand_out[0]};
-                    new_color_plats[5:3] = {rand_out[7], rand_out[2], rand_out[3]};
-                    new_color_plats[2:0] = rand_out[5:3];
-                    new_color_plats[11:9] = rand_out[3:1];
-		              position = rand_out[7:6];
+                    new_color_plats[8:6] = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
+                    new_color_plats[5:3] = rand_out[15:8] %8;
+                    new_color_plats[2:0] = rand_out[23:16] % 8;
+                    new_color_plats[11:9] = rand_out[31:24] %8;
+		              position = rand_out[23:16] % 4;
                 end
             3:  begin
-                    new_color_plats[11:9] = rand_out[6:4];
-						  new_color_ball = rand_out[6:4];
-                    new_color_plats[5:3] = {rand_out[7], rand_out[2], rand_out[3]};
-                    new_color_plats[2:0] = {rand_out[5], rand_out[1], rand_out[1]};
-                    new_color_plats[8:6] = {rand_out[1], rand_out[1], rand_out[3]};
-                    position = rand_out[5:4];
+                    new_color_plats[11:9] = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
+                    new_color_plats[5:3] = rand_out[15:8] %8;
+                    new_color_plats[2:0] = rand_out[23:16] % 8;
+                    new_color_plats[8:6] = rand_out[31:24] % 8;
+                    position = rand_out[31:24] % 4;
                 end
 					 default: begin
-                    new_color_plats[11:9] = rand_out[6:4];
-						  new_color_ball = rand_out[6:4];
-                    new_color_plats[5:3] = {rand_out[7], rand_out[2], rand_out[3]};
-                    new_color_plats[2:0] = {rand_out[5], rand_out[1], rand_out[1]};
-                    new_color_plats[8:6] = {rand_out[1], rand_out[1], rand_out[3]};
-                    position = rand_out[5:4];
+                    new_color_plats[11:9] = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
+                    new_color_plats[5:3] = rand_out[15:8] %8;
+                    new_color_plats[2:0] = rand_out[23:16] % 8;
+                    new_color_plats[8:6] = rand_out[31:24] % 8;
+                    position = rand_out[31:24] % 4;
                 end
         endcase
     end

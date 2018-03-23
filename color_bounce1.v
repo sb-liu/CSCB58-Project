@@ -6,6 +6,10 @@ module color_bounce1
 		// Your inputs and outputs here
         KEY,
         SW,
+		  HEX0,
+		  HEX1,
+		  HEX2,
+		  HEX3,
 		// The ports below are for the VGA output.  Do not change.
 		VGA_CLK,   						//	VGA Clock
 		VGA_HS,							//	VGA H_SYNC
@@ -20,6 +24,7 @@ module color_bounce1
 	input			CLOCK_50;				//	50 MHz
 	input   [9:0]   SW;
 	input   [3:0]   KEY;
+	output [6:0] HEX0, HEX1, HEX2, HEX3;
 
 	// Declare your inputs and outputs here
 	
@@ -65,8 +70,8 @@ module color_bounce1
 			.resetn(1'b1),
 			.clock(CLOCK_50),
 			.colour(colour),
-			.x(x),
-			.y(y),
+			.x(y),
+			.y(x),
 			.plot(writeEn),
 			/* Signals for the DAC to drive the monitor. */
 			.VGA_R(VGA_R),
@@ -104,7 +109,8 @@ module color_bounce1
 	wire gameover;
 	wire [7:0] prev_ball_memout, curr_ball_memout, prev_ball_up2mem, curr_ball_up2mem;
 	wire [2:0] color_ball_memout, color_ball_up2mem;
-	wire [11:0] color_plats_memout,color_plats_up2mem,score_up2mem, score_memout;
+	wire [11:0] color_plats_memout,color_plats_up2mem;
+	wire [15:0] score_up2mem, score_memout;
 	wire [27:0] position_plats_memout, position_plats_up2mem;
 	wire idletoerase;
 	
@@ -176,10 +182,58 @@ module color_bounce1
         .out(adjustedClock1)
     );
 
+	 hex_display h0(
+		.IN(score_memout[3:0]),
+		.OUT(HEX0)
+	 );
+	 
+	 hex_display h1(
+		.IN(score_memout[7:4]),
+		.OUT(HEX1)
+	 );
+	 
+	 hex_display h2(
+		.IN(score_memout[11:8]),
+		.OUT(HEX2)
+	 );
+	 
+	 hex_display h3(
+		.IN(score_memout[15:12]),
+		.OUT(HEX3)
+	 );
 endmodule
 
 
 //-----------------------------------------------------------------------------------------
+module hex_display(IN, OUT);
+    input [3:0] IN;
+	 output reg [7:0] OUT;
+	 
+	 always @(*)
+	 begin
+		case(IN[3:0])
+			4'b0000: OUT = 7'b1000000;
+			4'b0001: OUT = 7'b1111001;
+			4'b0010: OUT = 7'b0100100;
+			4'b0011: OUT = 7'b0110000;
+			4'b0100: OUT = 7'b0011001;
+			4'b0101: OUT = 7'b0010010;
+			4'b0110: OUT = 7'b0000010;
+			4'b0111: OUT = 7'b1111000;
+			4'b1000: OUT = 7'b0000000;
+			4'b1001: OUT = 7'b0011000;
+			4'b1010: OUT = 7'b0001000;
+			4'b1011: OUT = 7'b0000011;
+			4'b1100: OUT = 7'b1000110;
+			4'b1101: OUT = 7'b0100001;
+			4'b1110: OUT = 7'b0000110;
+			4'b1111: OUT = 7'b0001110;
+			
+			default: OUT = 7'b0111111;
+		endcase
+
+	end
+endmodule
 
 module rateDivider (counter, clock, out);
     input [27:0] counter;
