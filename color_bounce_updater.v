@@ -61,7 +61,7 @@ module updater (
 			
 			// Setting new positions of the ball
 			prev_ball = curr_ball;
-			//gameover = 0;
+			gameover = 0;
 			
 			if (up_counter == 0) begin // Ball going down
 				new_curr_ball = curr_ball + 1;
@@ -73,9 +73,8 @@ module updater (
 			
 			// If ball drops to the bottom, game over
 			if (new_curr_ball >= 7'd116)
-				//gameover = 1;
+				gameover = 1;
 				next_score = 0;
-			
 		end
 	end
 endmodule

@@ -140,10 +140,20 @@ module color_bounce1
         .next_score(score_up2mem),
     );
     
+	 wire game_reset_out;
+	 wire or_keys = KEY[0] || KEY[1] || KEY[2] || KEY[3];
+	 game_reset gr(
+		.start_key(or_keys),
+		.gameover(gameover),
+		.clk(CLOCK_50),
+		.reset_is_on(game_reset_out)
+	 );
+	 
+	 wire game_reset_or_key = game_reset_out || SW[0];
 	 
 	 memory mem_game(
 		.clk(CLOCK_50),
-		.reset(SW[0]),
+		.reset(game_reset_out),
 		.prev_ball_in(prev_ball_up2mem),
 		.curr_ball_in(curr_ball_up2mem),
 		.color_ball_in(color_ball_up2mem),
@@ -177,7 +187,7 @@ module color_bounce1
 	
 	wire adjustedClock1;
 	rateDivider first(
-        .counter(28'd750000),
+        .counter(28'd750000-(score_memout*5)),
         .clock(CLOCK_50),
         .out(adjustedClock1)
     );
@@ -205,6 +215,28 @@ endmodule
 
 
 //-----------------------------------------------------------------------------------------
+
+module game_reset(
+	start_key,
+	gameover,
+	clk,
+	reset_is_on
+);
+	input start_key, gameover, clk;
+	output reg reset_is_on;
+	initial reset_is_on = 1;
+	
+	always@(posedge clk) begin
+		case({gameover, start_key})
+			1:reset_is_on = 0;
+			2:reset_is_on = 1;
+			3:reset_is_on = 1;
+			default: reset_is_on = reset_is_on;
+		endcase
+	end
+endmodule
+
+
 module hex_display(IN, OUT);
     input [3:0] IN;
 	 output reg [7:0] OUT;
@@ -348,9 +380,9 @@ module datapath(
     
     always@(posedge clk) begin
         if(!resetn) begin
-            x_reg <= 8'b0; 
-            y_reg <= 8'b0;
-			counter <= 4'b0;
+            x_reg <= original_x; 
+            y_reg <= prev_ball;
+				counter <= 4'b0;
         end
         
         else begin
