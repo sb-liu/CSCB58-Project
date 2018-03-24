@@ -59,8 +59,8 @@ module color_bounce1
 	assign writeEn = 1'b1;// to VGA: writeEnable/plot signal for the VGA	
 	
 	// Output wires to VGA
-	wire [7:0] x; // x output from datapath to VGA
-	wire [6:0] y; // y output from datapath to VGA
+	wire [6:0] x; // x output from datapath to VGA
+	wire [7:0] y; // y output from datapath to VGA
 	
 
 	// Create an Instance of a VGA controller - there can be only one!
