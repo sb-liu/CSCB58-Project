@@ -153,7 +153,7 @@ module color_bounce1
 	 
 	 memory mem_game(
 		.clk(CLOCK_50),
-		.reset(game_reset_out),
+		.reset(game_reset_or_key),
 		.prev_ball_in(prev_ball_up2mem),
 		.curr_ball_in(curr_ball_up2mem),
 		.color_ball_in(color_ball_up2mem),
