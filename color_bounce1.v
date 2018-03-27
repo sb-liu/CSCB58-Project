@@ -98,7 +98,7 @@ module color_bounce1
     // Instantiate FSM control
     control c0(
         .clk(CLOCK_50),
-        .resetn(game_reset_or_key),
+        .resetn(SW[1]),
         .statesig(statesig),
         .erase_ball(erase_ball),
         .draw_ball(draw_ball),
@@ -141,9 +141,9 @@ module color_bounce1
     );
 
 	 wire game_reset_out;
-	 wire or_keys = KEY[0] || KEY[1] || KEY[2] || KEY[3];
+	 wire or_keys = KEY[0] && KEY[1] && KEY[2] && KEY[3];
 	 game_reset gr(
-		.start_key(or_keys),
+		.start_key(!or_keys),
 		.gameover(gameover),
 		.clk(CLOCK_50),
 		.reset_is_on(game_reset_out)
@@ -215,7 +215,7 @@ endmodule
 
 
 //-----------------------------------------------------------------------------------------
-
+/*
 module game_reset(
 	start_key,
 	gameover,
@@ -236,7 +236,7 @@ module game_reset(
 	end
 endmodule
 
-
+*/
 module hex_display(IN, OUT);
     input [3:0] IN;
 	 output reg [7:0] OUT;

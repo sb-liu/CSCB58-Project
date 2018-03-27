@@ -53,7 +53,7 @@ module pseudo_rand(
 		end 
 	end
 endmodule 
-
+/*
 module color_rand(
     new_color_ball,
     new_color_plats,
@@ -93,9 +93,9 @@ module color_rand_ball(
 		.reset(1'b0),
 		.seed(8'b10110101)	
 	);
-    
+    reg position;
     always@(*) begin
-        case(rand_out % 4)
+        case(position)
             0:new_color_ball = new_color_plats[2:0];
             1:new_color_ball = new_color_plats[5:3];
             2:new_color_ball = new_color_plats[8:6];
@@ -103,13 +103,15 @@ module color_rand_ball(
         endcase
     end
 endmodule
-
-module color_rand_plats(
+*/
+module color_rand(
+	new_color_ball,
     new_color_plats,
     clk
     );
 	 // bit 3 and 5 always 1
 	 input clk;
+	 output reg [2:0] new_color_ball;
     output reg [11:0] new_color_plats;
     wire [31:0] rand_out;
 	 reg [1:0] position;
@@ -127,7 +129,7 @@ module color_rand_plats(
         case (position)
             0: begin
                     new_color_plats[2:0] = rand_out[7:0] % 8;
-					//	  new_color_ball = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
                     new_color_plats[5:3] = rand_out[15:8] % 8;
                     new_color_plats[8:6] = rand_out[23:16] % 8;
                     new_color_plats[11:9] = rand_out[31:24] % 8;
@@ -135,7 +137,7 @@ module color_rand_plats(
                 end
             1: begin
                     new_color_plats[5:3] = rand_out[7:0] % 8;
-					//	  new_color_ball = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
                     new_color_plats[2:0] = rand_out[15:8] %8;
                     new_color_plats[8:6] = rand_out[23:16] % 8;
                     new_color_plats[11:9] = rand_out[31:24] %8;
@@ -143,7 +145,7 @@ module color_rand_plats(
                 end
             2:  begin
                     new_color_plats[8:6] = rand_out[7:0] % 8;
-					//	  new_color_ball = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
                     new_color_plats[5:3] = rand_out[15:8] %8;
                     new_color_plats[2:0] = rand_out[23:16] % 8;
                     new_color_plats[11:9] = rand_out[31:24] %8;
@@ -151,7 +153,7 @@ module color_rand_plats(
                 end
             3:  begin
                     new_color_plats[11:9] = rand_out[7:0] % 8;
-					//	  new_color_ball = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
                     new_color_plats[5:3] = rand_out[15:8] %8;
                     new_color_plats[2:0] = rand_out[23:16] % 8;
                     new_color_plats[8:6] = rand_out[31:24] % 8;
@@ -159,7 +161,7 @@ module color_rand_plats(
                 end
 					 default: begin
                     new_color_plats[11:9] = rand_out[7:0] % 8;
-					//	  new_color_ball = rand_out[7:0] % 8;
+						  new_color_ball = rand_out[7:0] % 8;
                     new_color_plats[5:3] = rand_out[15:8] %8;
                     new_color_plats[2:0] = rand_out[23:16] % 8;
                     new_color_plats[8:6] = rand_out[31:24] % 8;

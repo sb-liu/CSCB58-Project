@@ -49,7 +49,7 @@ module updater (
 
 				// Make ball go up (direction will change back to down when counter reaches 0)
 				up_counter <= 50;
-				next_score = curr_score + 10;
+				next_score = curr_score + 1;
 			end
             else begin
 				// If not touching, all colours stay the same
@@ -71,9 +71,11 @@ module updater (
 				up_counter <= up_counter - 1;
 			end
 			// If ball drops to the bottom, game over
-			if (new_curr_ball >= 8'd160)
+			if (new_curr_ball >= 8'd160) begin
 				gameover = 1;
 				next_score = 0;
+				
+			end
 		end
 	end
 endmodule
