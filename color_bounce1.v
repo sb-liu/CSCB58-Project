@@ -103,7 +103,7 @@ module color_bounce1
         .erase_ball(erase_ball),
         .draw_ball(draw_ball),
         .draw_plat(draw_plat),
-		.idletoerase(adjustedClock1),
+		.idletoerase(adjustedClock1)
     );
 
 	wire gameover;
@@ -111,7 +111,7 @@ module color_bounce1
 	wire [2:0] color_ball_memout, color_ball_up2mem;
 	wire [11:0] color_plats_memout,color_plats_up2mem;
 	wire [15:0] score_up2mem, score_memout;
-	wire [27:0] position_plats_memout, position_plats_up2mem;
+	wire [31:0] position_plats_memout, position_plats_up2mem;
 	wire idletoerase;
 
 	/*
@@ -137,7 +137,7 @@ module color_bounce1
         .new_color_plats(color_plats_up2mem),
         .new_color_ball(color_ball_up2mem),
         .gameover(gameover),
-        .next_score(score_up2mem),
+        .next_score(score_up2mem)
     );
 
 	 wire game_reset_out;
@@ -187,7 +187,7 @@ module color_bounce1
 
 	wire adjustedClock1;
 	rateDivider first(
-        .counter(28'd750000-(score_memout*5)),
+        .counter(28'd750000-(score_memout*20)),
         .clock(CLOCK_50),
         .out(adjustedClock1)
     );
@@ -260,7 +260,6 @@ module hex_display(IN, OUT);
 			4'b1101: OUT = 7'b0100001;
 			4'b1110: OUT = 7'b0000110;
 			4'b1111: OUT = 7'b0001110;
-
 			default: OUT = 7'b0111111;
 		endcase
 
@@ -358,7 +357,7 @@ module datapath(
     input [7:0] prev_ball, curr_ball,
 	input [2:0] color_ball,
 	input [11:0] color_plats,
-	input [27:0] position_plats,
+	input [31:0] position_plats,
     input erase_ball,
     input draw_ball,
 	input draw_plat,
@@ -412,14 +411,14 @@ module datapath(
 				// if we have not drawn all the platforms, draw the next platform
 				statesig <= 2'b01; // stay in current state
 
-				// if we have finished drawing the current platform, reset drawing counter and try to draw the next platform
+				// if:0 we have finished drawing the current platform, reset drawing counter and try to draw the next platform
 				if (counter == 4'b1111) begin
 					counter <= 4'b0000;
 					counter_plat <= counter_plat + 1; // increment counter_plat to try to draw the next platform
 					if(counter_plat == 2'b11) begin
 						counter_plat <= 2'b00;
 						statesig <= 2'b10; // move to next state
-						y_reg <= position_plats[27:21];
+						y_reg <= position_plats[31:24];
 						color_reg <= color_plats[11:9];
 					end
 				end
@@ -429,19 +428,19 @@ module datapath(
 					x_reg <= (original_x - 6) + counter; // platform should start 6 pixels to the left of the ball
 					case(counter_plat)
 						0: begin
-								y_reg <= position_plats[6:0];
+								y_reg <= position_plats[7:0];
 								color_reg <= color_plats[2:0];
 							end
 						1: begin
-								y_reg <= position_plats[13:7];
+								y_reg <= position_plats[15:8];
 								color_reg <= color_plats[5:3];
 							end
 						2: begin
-								y_reg <= position_plats[20:14];
+								y_reg <= position_plats[23:16];
 								color_reg <= color_plats[8:6];
 							end
 						3: begin
-								y_reg <= position_plats[27:21];
+								y_reg <= position_plats[31:24];
 								color_reg <= color_plats[11:9];
 							end
 					endcase
