@@ -22,9 +22,13 @@ module updater (
 	color_rand myradd(
 	  .new_color_plats(new_color_plats_wire),
       .new_color_ball(new_color_ball_wire),
-      .clk(touch)
+      .clk(clk)
 	);
 
+	initial begin
+		new_color_plats <= 12'b001010100111;
+		new_color_ball <= 3'b111;
+	end
 	always@(posedge clk) begin
 		touch = 0;
 

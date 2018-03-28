@@ -2,6 +2,7 @@
 module color_randomize(
 	input [9:0] SW,
 	output [17:0] LEDR,
+	input CLOCK_50,
 	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4
 );
 
@@ -15,6 +16,8 @@ module color_randomize(
 	
 	wire [31:0] color_plats_out;
 	wire [2:0] color_ball_out;
+	
+	assign LEDR[2:0] = color_ball_out;
 	
 	color_rand1 myrand(
 		.new_color_ball(color_ball_out),
@@ -55,15 +58,13 @@ module pseudo_rand(
 	out,  
 	enable,  
 	clk,  
-	reset,
-	seed
+	reset
 );
 
-	output [31:0] out;
+	//output [31:0] out;
 
 	input enable, clk, reset;
-	input [7:0] seed;
-	reg [31:0] out = 32'd4;
+	output reg [31:0] out;
 	wire linear_feedback;
 
 	reg linear_color_platsfeedback1;
@@ -72,7 +73,7 @@ module pseudo_rand(
 //	wire[3:0] xno = ~out[3:0];
 	reg tf;
 	reg mux2out;
-	
+	/*
 	always@(posedge clk) begin
 		tf = ~tf;
 		case(tf)
@@ -80,14 +81,16 @@ module pseudo_rand(
 			1:linear_color_platsfeedback2= ~(out[25] ^ out[10]);
 		endcase
 	end
+	*/
+	initial out = 32'd1668220261;
 	
 	always @(posedge clk) begin
 		if (reset) begin 
-		  out <= 32'd2147483647 ;
+		  out <= 32'd1668220261 ;
 		end 
 		
 		else if (enable) begin
-			out <= (2*(out * out) + 5*(out) + 1);
+			out <= (3*(out * out) + 7*(out) + 1);
 		end 
 	end
 endmodule 
@@ -170,7 +173,7 @@ endmoduleand(
     end
 endmodule
 */
-module color_rand1(
+module color_rand(
 	new_color_ball,
     new_color_plats,
     clk
@@ -179,61 +182,82 @@ module color_rand1(
 	 input clk;
 	 output reg [2:0] new_color_ball;
     output reg [11:0] new_color_plats;
-    wire [31:0] rand_out;
+	 wire [31:0] rand_out_wire;
+    reg [31:0] rand_out;
 	 reg [1:0] position;
 	 
+	 
+	 
     pseudo_rand my_rand(
-		.out(rand_out),
+		.out(rand_out_wire),
 		.enable(1'b1),
 		.clk(clk),
-		.reset(1'b0),
-		.seed(8'b10110101)	
+		.reset(1'b0)
 	);
+    reg[2:0] selected_color, section1, section2, section3;
+	 initial begin
+		 selected_color <= 3'b010;
+		 section1 <= 3'b001;
+		 section2 <= 3'b100;
+		 section3 <= 3'b111;
+		 new_color_plats <= {selected_color,section1,section2,section3};
+		 new_color_ball <= selected_color;
+	 end
     
-    
-    always @ ( * ) begin
-        case (position)
-            0: begin
-                    new_color_plats[2:0] <= rand_out[7:0] % 4'd8;
-						  new_color_ball <= rand_out[7:0] % 4'd8;
-                    new_color_plats[5:3] <= rand_out[15:8] % 4'd8;
-                    new_color_plats[8:6] <= rand_out[23:16] % 4'd8;
-                    new_color_plats[11:9] <= rand_out[31:24] % 4'd8;
+    always @ ( posedge clk ) begin
+			rand_out <= rand_out_wire;
+			selected_color <=  (rand_out[7:0] % 4'd7) + 1;
+			section1 <= (rand_out[15:8] % 4'd7) + 1;
+			section2 <= (rand_out[23:16] % 4'd7) + 1;
+			section3 <= (rand_out[31:24] % 4'd7) + 1;
+			
+			/*
+			if (selected_color == 0) selected_color <= selected_color + 1;
+			if (section1 == 0) section1 <= section1 + 1;
+			if (section2 == 0) section2 <= section2 + 4;
+			if (section3 == 0) section3 <= section3 + 2;*/
+		  case (position)
+				0: begin
+						  new_color_plats[2:0] <= selected_color;
+						  new_color_ball <= selected_color;
+						  new_color_plats[5:3] <= section1;
+						  new_color_plats[8:6] <= section2;
+						  new_color_plats[11:9] <= section3;
 						  position <= rand_out[7:0] % 3'd4;
-                end
-            1: begin
-                    new_color_plats[5:3] <= rand_out[7:0] % 4'd8;
-						  new_color_ball <= rand_out[7:0] % 4'd8;
-                    new_color_plats[2:0] <= rand_out[15:8] % 4'd8;
-                    new_color_plats[8:6] <= rand_out[23:16] % 4'd8;
-                    new_color_plats[11:9] <= rand_out[31:24] % 4'd8;
-                    position <= rand_out[15:8] % 3'd4;
-                end
-            2:  begin
-                    new_color_plats[8:6] <= rand_out[7:0] % 4'd8;
-						  new_color_ball <= rand_out[7:0] % 4'd8;
-                    new_color_plats[5:3] <= rand_out[15:8] % 4'd8;
-                    new_color_plats[2:0] <= rand_out[23:16] % 4'd8;
-                    new_color_plats[11:9] <= rand_out[31:24] % 4'd8;
-		              position <= rand_out[23:16] % 3'd4;
-                end
-            3:  begin
-                    new_color_plats[11:9] <= rand_out[7:0] % 4'd8;
-						  new_color_ball <= rand_out[7:0] % 4'd8;
-                    new_color_plats[5:3] <= rand_out[15:8] % 4'd8;
-                    new_color_plats[2:0] <= rand_out[23:16] % 4'd8;
-                    new_color_plats[8:6] <= rand_out[31:24] % 4'd8;
-                    position <= rand_out[31:24] % 3'd4;
-                end
+					 end
+				1: begin
+						  new_color_plats[5:3] <= selected_color;
+						  new_color_ball <= selected_color;
+						  new_color_plats[2:0] <= section1;
+						  new_color_plats[8:6] <= section2;
+						  new_color_plats[11:9] <= section3;
+						  position <= rand_out[15:8] % 3'd4;
+					 end
+				2:  begin
+						  new_color_plats[8:6] <= selected_color;
+						  new_color_ball <= selected_color;
+						  new_color_plats[5:3] <= section1;
+						  new_color_plats[2:0] <= section2;
+						  new_color_plats[11:9] <= section3;
+						  position <= rand_out[23:16] % 3'd4;
+					 end
+				3:  begin
+						  new_color_plats[11:9] <= selected_color;
+						  new_color_ball <= selected_color;
+						  new_color_plats[5:3] <= section1;
+						  new_color_plats[2:0] <= section2;
+						  new_color_plats[8:6] <= section3;
+						  position <= rand_out[31:24] % 3'd4;
+					 end
 					 default: begin
-                    new_color_plats[11:9] <= rand_out[7:0] % 4'd8;
-						  new_color_ball <= rand_out[7:0] % 4'd8;
-                    new_color_plats[5:3] <= rand_out[15:8] % 4'd8;
-                    new_color_plats[2:0] <= rand_out[23:16] % 4'd8;
-                    new_color_plats[8:6] <= rand_out[31:24] % 4'd8;
-                    position  <= rand_out[31:24] % 3'd4;
-                end
-        endcase
+						  new_color_plats[11:9] <= selected_color;
+						  new_color_ball <= selected_color;
+						  new_color_plats[5:3] <= section1;
+						  new_color_plats[2:0] <= section2;
+						  new_color_plats[8:6] <= section3;
+						  position  <= rand_out[31:24] % 3'd4;
+					 end
+		  endcase
     end
 
 endmodule
