@@ -10,6 +10,10 @@ module color_bounce1
 		  HEX1,
 		  HEX2,
 		  HEX3,
+		  HEX4,
+		  HEX5,
+		  HEX6,
+		  HEX7,
 		// The ports below are for the VGA output.  Do not change.
 		VGA_CLK,   						//	VGA Clock
 		VGA_HS,							//	VGA H_SYNC
@@ -24,7 +28,7 @@ module color_bounce1
 	input			CLOCK_50;				//	50 MHz
 	input   [9:0]   SW;
 	input   [3:0]   KEY;
-	output [6:0] HEX0, HEX1, HEX2, HEX3;
+	output [6:0] HEX0, HEX1, HEX2,HEX3,HEX4,HEX5, HEX6, HEX7;
 
 	// Declare your inputs and outputs here
 
@@ -98,7 +102,7 @@ module color_bounce1
     // Instantiate FSM control
     control c0(
         .clk(CLOCK_50),
-        .resetn(SW[1]),
+        .resetn(1'b1),
         .statesig(statesig),
         .erase_ball(erase_ball),
         .draw_ball(draw_ball),
@@ -137,7 +141,8 @@ module color_bounce1
         .new_color_plats(color_plats_up2mem),
         .new_color_ball(color_ball_up2mem),
         .gameover(gameover),
-        .next_score(score_up2mem)
+        .next_score(score_up2mem),
+		  .pause(SW[1])
     );
 
 	 wire game_reset_out;
@@ -165,12 +170,13 @@ module color_bounce1
 		.color_plats_out(color_plats_memout),
 		.position_plats_out(position_plats_memout),
 		.score_in(score_up2mem),
-		.score_out(score_memout)
+		.score_out(score_memout),
+		.hiscore(hiscore)
 	 );
 
     datapath d0(
         .clk(CLOCK_50),
-        .resetn(SW[1]),
+        .resetn(1'b1),
         .prev_ball(prev_ball_memout),
         .curr_ball(curr_ball_memout),
         .color_ball(color_ball_memout),
@@ -188,10 +194,26 @@ module color_bounce1
 	wire adjustedClock1;
 	rateDivider first(
         .counter(28'd750000-(score_memout*15000)),
+		  //.counter(28'd750000 >> (score_memout)),
         .clock(CLOCK_50),
         .out(adjustedClock1)
     );
-
+	 
+	 wire[15:0] hiscore;
+	 wire [3:0] tens_score, ones_score, tens_hi, ones_hi;
+	 
+	 bcd b2d(
+		.number(score_memout[7:0]),
+		.tens(tens_score),
+		.ones(ones_score)
+	 );
+	 
+	 bcd b2d_hi(
+		.number(hiscore[7:0]),
+		.tens(tens_hi),
+		.ones(ones_hi)
+	 );
+/*
 	 hex_display h0(
 		.IN(score_memout[3:0]),
 		.OUT(HEX0)
@@ -200,17 +222,59 @@ module color_bounce1
 	 hex_display h1(
 		.IN(score_memout[7:4]),
 		.OUT(HEX1)
+	 );*/
+	 hex_display h0(
+		.IN(ones_score),
+		.OUT(HEX0)
 	 );
 
+	 hex_display h1(
+		.IN(tens_score),
+		.OUT(HEX1)
+	 );
+/*
 	 hex_display h2(
-		.IN(score_memout[11:8]),
+		.IN(12),
 		.OUT(HEX2)
 	 );
-
+*/
+	assign HEX2 = 7'b0100111;
 	 hex_display h3(
-		.IN(score_memout[15:12]),
+		.IN(5),
 		.OUT(HEX3)
 	 );
+	 /*
+	 hex_display hih0(
+		.IN(hiscore[3:0]),
+		.OUT(HEX4)
+	 );
+
+	 hex_display hih1(
+		.IN(hiscore[7:4]),
+		.OUT(HEX5)
+	 );*/
+
+	 hex_display hih0(
+		.IN(ones_hi),
+		.OUT(HEX4)
+	 );
+
+	 hex_display hih1(
+		.IN(tens_hi),
+		.OUT(HEX5)
+	 );
+	 
+	 hex_display hih2(
+		.IN(1),
+		.OUT(HEX6)
+	 );
+/*
+	 hex_display hih3(
+		.IN(hiscore[15:12]),
+		.OUT(HEX7)
+	 );
+	 */
+	 assign HEX7 = 7'b0001001;
 endmodule
 
 
