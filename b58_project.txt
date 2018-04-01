@@ -146,6 +146,8 @@ from looking at this:
 Also our decimal to binary converter module is from this:
 http://www.deathbylogic.com/2013/12/binary-to-binary-coded-decimal-bcd-converter/
 
+And our VGA adaptor is from the course website (Brian Harrington)
+http://www.utsc.utoronto.ca/~bharrington/cscb58/labs.shtml
 
 Updates
 -------
