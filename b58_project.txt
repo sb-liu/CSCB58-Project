@@ -102,10 +102,37 @@ Motivations
 -----------
 How does this project relate to the material covered in CSCB58?:
 
+Our project makes use of different kinds of latches, signals for clocks,
+counters, memory, many logic gates, finite state machine and generally
+most of the material that we learnt in class. From the design of our
+code and game, our project conveys the recurring main idea of this course.
+This main idea is: taking time to understand (in this case build)
+different small components (or modules) is needed to get to the “Final
+Destination” (our game).
+
 Why is this project interesting/cool (for CSCB58 students, and for non 
 CSCB58 students?):
 
+The layout of our code in the project is intuitive. We have a place
+to store values (memory), an updater and data-path (which updates/retrieves
+from memory) to regulate what should feed into our VGA adapter. These small
+modules interact with each other to display the scores and let the user
+play the game. This is interesting, because just by carefully planning
+out what each small component contribute to the bigger picture, we
+end up with a cool game. And although this game is branched off of the
+concepts that we have learned in this course, non CSCB58 will find this
+cool because we are taking physical parts of a computer and displaying 
+shapes that can move/interact with a user 
+
 Why did you personally choose this project?:
+We unanimously decided that we wanted to create a game for our project
+mainly because we agreed that it would be fun, especially when we finish,
+we get to play it ourselves. Instead of adding on to a game that has 
+already been created by a peer, we wanted to create game based off of an 
+original idea for this project. Reason being is that we wanted to
+see what we can build from scratch with the resources was provided,
+and with the intellect that we collectively gathered from taking this
+class. 
 
 Attributions
 ------------
@@ -113,18 +140,80 @@ Provide a complete list of any external resources your project used
 (attributions should also be included in your
 code).  
 
+Throughout the project,
+we did not use code from anywhere else. However, we did get some ideas on 
+how to randomize from looking at this:
+
 Updates
 -------
 
-<Example update. Delte this and add your own updates after each lab 
-session>
-Week 1: We built the hardware and tested the sensors. The distance 
-sensor we had intended to use didn't work as
-expected (wasn't precise enough at further distances, only seems to work 
-accurately within 5-10cm), so instead
-we've decided to change the project to use a light sensor instead. Had 
-trouble getting the FSM to work (kept
-getting stuck in state 101, took longer to debug than expected), so we 
-may not be able to add the
-high score feature, have updated that in the project description as 
-(optional).
+Week 1: We got together several times before our lab this week.
+Before the lab:
+We planned for several days of all the modules we needed in order to make
+this game. We planned out all the gritty details so that when we implement the
+game or need to make any changes, it would be easy to know how to do so
+without making serious mistakes.
+
+By the end of our lab:
+We drew the static screen of the game as planned. This included
+all 4 platforms, and the ball against the black background. Before the lab,
+we wrote the data path and FSM that feeds into the VGA adapter. At first, 
+when we tested these modules, nothing was drawn onto the screen. However,
+after adjusting the clock, the colours of the platforms, and off by one 
+errors, we are able to display a perfect square (as our ball) and the 4
+platforms, as planned. Also, we thought we were having trouble at first
+with the FSM because it looked like it drew 2 balls instead of the 
+desired 1, however we realized that it actually showed that our 
+FMS was working because we had an ERASE BALL state and we temporarily set
+that state to do that.
+
+For the rest of the lab, we began writing out the code for our memory and 
+updater module, as these modules will help us reach our next goal of 
+making the platform colours random.
+
+Week 2: We got together several times before our lab this week.
+Before our lab:
+We were able to make a randomizer module so that we can test it before 
+our lab on Thursday. All day Tuesday, we sat in another 
+lab class to test out this module. Our randomizer worked for the most part,
+but we realized that after playing our game for awhile, the colours did not
+seem to be completely random, and sometimes no platforms matched the colour
+of the ball at all, making our game endlessly loop. However, we did succeed 
+in making sure the platform/ball colours change at the appropriate time. 
+We also succeeded in making the ball move up and down - the first step in 
+making the ball bounce appropriately. 
+By the end of our lab:
+We completed our goal of making a randomizer module, but we
+still had a member of our group continually improve it because, although 
+the colours change each time randomly, we want to reduce the frequency of the 
+colour black popping up (as our background is black).
+We got started in making the ball move and bounce accordingly
+to the user input (we realized that we may have to fix some platform distances
+to do so). We also got advice from the TA to make our game 
+freeze/restart when the game ends.
+Also, we realized that if we have time, we should implement a hi-score
+feature.
+
+
+Week 3: We got together several times before our lab this week.
+Before our lab:
+By having the modules signal each other as planned 
+(some signals act as clocks for other modules),
+we were able to get the ball bounce appropriately to the 
+user input. We also redid our randomizer, and in this latest revision,
+we do not encounter any of our previous problems. 
+We further worked on our reset component (i.e. adding a mux)
+because we needed to have a game over state. 
+Up to this point, everything else is working out smoothly. 
+
+By the end of our lab:
+We finished implementing displaying the scores of the game.
+We have a hi-score display as well.
+We got the ball to move as planned. 
+- Our ball bounces accordingly 
+- The platforms distance are now fixed
+Our randomizer is now fixed
+We have a reset/pause/game over state
+
+By the end of the week, as planned, we finished the animation part of
+the game and we are satisfied that our game is basically complete.
