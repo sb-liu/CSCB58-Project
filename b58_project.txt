@@ -140,9 +140,12 @@ Provide a complete list of any external resources your project used
 (attributions should also be included in your
 code).  
 
-Throughout the project,
-we did not use code from anywhere else. However, we did get some ideas on 
-how to randomize from looking at this:
+We did not copy the code, but we got some ideas on  how to randomize 
+from looking at this:
+
+Also our decimal to binary converter module is from this:
+http://www.deathbylogic.com/2013/12/binary-to-binary-coded-decimal-bcd-converter/
+
 
 Updates
 -------
