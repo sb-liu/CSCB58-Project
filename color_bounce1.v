@@ -98,7 +98,7 @@ module color_bounce1
     // Instantiate datapath
 
     wire[1:0] statesig;
-    wire erase_ball, draw_plat, draw_ball;
+    wire erase_ball, draw_plat, draw_ball, draw_scores;
     // Instantiate FSM control
     control c0(
         .clk(CLOCK_50),
@@ -107,6 +107,7 @@ module color_bounce1
         .erase_ball(erase_ball),
         .draw_ball(draw_ball),
         .draw_plat(draw_plat),
+		.draw_scores(draw_scores),
 		.idletoerase(adjustedClock1)
     );
 
@@ -182,9 +183,14 @@ module color_bounce1
         .color_ball(color_ball_memout),
         .color_plats(color_plats_memout),
         .position_plats(position_plats_memout),
+		.tens_hi(tens_hi_bit),
+		.ones_hi(ones_hi_bit),
+		.tens_score(tens_score_bit),
+		.ones_score(ones_score_bit),
         .erase_ball(erase_ball),
         .draw_ball(draw_ball),
         .draw_plat(draw_plat),
+		.draw_scores(draw_scores)
         .x_reg(x),
         .y_reg(y),
         .color_reg(colour),
@@ -201,6 +207,28 @@ module color_bounce1
 	 
 	 wire[15:0] hiscore;
 	 wire [3:0] tens_score, ones_score, tens_hi, ones_hi;
+	 wire [15:0] tens_score_bit, ones_score_bit, tens_hi_bit, ones_hi_bit;
+	 
+	 dec_display t_hi(
+		.dec_num(tens_hi),
+		.bitrep(tens_hi_bit)
+	 );
+	 
+	 dec_display o_hi(
+		.dec_num(ones_hi),
+		.bitrep(ones_hi_bit)
+	 );
+	 
+	 dec_display t_score(
+		.dec_num(tens_score),
+		.bitrep(tens_score_bit)
+	 );
+	 
+	 dec_display o_score(
+		.dec_num(ones_score),
+		.bitrep(ones_score_bit)
+	 );
+	 
 	 
 	 bcd b2d(
 		.number(score_memout[7:0]),
@@ -301,6 +329,29 @@ module game_reset(
 endmodule
 
 */
+module dec_display(dec_num, bit_rep);
+	// given a digit, outputs a bit representation so the number can be drawn in pixels
+	input [3:0] dec_num;
+	output reg [15:0] bit_rep;
+	
+	always @(*)
+	 begin
+		case(dec_num[3:0])
+			4'b0000: bit_rep = 16'b0110100110010110;
+			4'b0001: bit_rep = 16'b0110101000101111;
+			4'b0010: bit_rep = 16'b1110000111101111;
+			4'b0011: bit_rep = 16'b1111001100011111;
+			4'b0100: bit_rep = 16'b1001100111110001;
+			4'b0101: bit_rep = 16'b1111110000111111;
+			4'b0110: bit_rep = 16'b0111100010111111;
+			4'b0111: bit_rep = 16'b1111000100100100;
+			4'b1000: bit_rep = 16'b1110101111010111;
+			4'b1001: bit_rep = 16'b1110100111110001;
+			default: bit_rep = 16'b0110100110010110; // only need numbers 0-9
+		endcase
+	end
+endmodule 
+
 module hex_display(IN, OUT);
     input [3:0] IN;
 	 output reg [7:0] OUT;
@@ -357,7 +408,8 @@ module control(
 	input idletoerase,
     output reg erase_ball,
 	output reg draw_ball,
-	output reg draw_plat
+	output reg draw_plat,
+	output reg draw_scores
     );
 
     reg [1:0] current_state, next_state;
@@ -366,8 +418,6 @@ module control(
                 S_DRAW_PLAT			= 2'd1,
                 S_DRAW_BALL  		= 2'd2,
 				S_IDLE				= 2'd3;
-
-
 
     // Next state logic aka our state table
     always @(*)
@@ -380,7 +430,7 @@ module control(
 
                 S_DRAW_BALL: next_state = (statesig == 2'b11) ? S_IDLE : S_DRAW_BALL;
 
-				S_IDLE : next_state = (idletoerase == 1'b1) ? S_ERASE_BALL : S_IDLE;
+				S_IDLE : next_state = ((statesig == 2'b00) && (idletoerase == 1'b1)) ? S_ERASE_BALL : S_IDLE;
 
             default:     next_state = S_ERASE_BALL;
         endcase
@@ -392,11 +442,13 @@ module control(
         erase_ball = 1'b0;
         draw_plat = 1'b0;
         draw_ball = 1'b0;
+		draw_scores = 1'b0;
 
         case (current_state)
          S_ERASE_BALL: erase_ball = 1'b1;
 			S_DRAW_BALL: draw_ball = 1'b1;
 			S_DRAW_PLAT: draw_plat = 1'b1;
+			S_IDLE: draw_scores = 1'b1;
 			// default:    // don't need default since we already made sure all of our outputs were assigned a value at the start of the always block
         endcase
     end // enable_signals
@@ -422,9 +474,11 @@ module datapath(
 	input [2:0] color_ball,
 	input [11:0] color_plats,
 	input [31:0] position_plats,
+	input [15:0] tens_hi, ones_hi, tens_score, ones_score
     input erase_ball,
     input draw_ball,
 	input draw_plat,
+	input draw_scores,
     output reg [7:0] x_reg,
     output reg [7:0] y_reg,
 	output reg [2:0] color_reg,
@@ -438,14 +492,18 @@ module datapath(
 	// initialize internal values for calculations
 	reg [3:0] counter = 4'b0000; // to count how many pixels we've drawn
 	reg [1:0] counter_plat = 2'b00; // to count how many platforms we've drawn
+	reg [1:0] counter_digits = 2'b00; // to count how many digits of the score we've drawn
+	
 	reg [7:0] original_x = 8'd60; // hard-coded x-coordinate for ball
-
-
+	reg [15:0] original_x_digits = 16'b0110010001101001; // hard-coded x-coordinates for score digits (MSB: tens, LSB: ones; 100, 105)
+	reg [15:0] original_y_digits = 16'b0001010000011110; // hard-coded y-coordinates for score digits (MSB: hiscore, LSB: score; 20, 30)
+	reg [15:0] digit_reg; // to hold info for digit currently being examined
+	
     always@(posedge clk) begin
         if(!resetn) begin
             x_reg <= original_x;
             y_reg <= prev_ball;
-				counter <= 4'b0;
+			counter <= 4'b0;
         end
 
         else begin
@@ -475,7 +533,7 @@ module datapath(
 				// if we have not drawn all the platforms, draw the next platform
 				statesig <= 2'b01; // stay in current state
 
-				// if:0 we have finished drawing the current platform, reset drawing counter and try to draw the next platform
+				// if: we have finished drawing the current platform, reset drawing counter and try to draw the next platform
 				if (counter == 4'b1111) begin
 					counter <= 4'b0000;
 					counter_plat <= counter_plat + 1; // increment counter_plat to try to draw the next platform
@@ -534,6 +592,60 @@ module datapath(
 
 					counter <= counter + 1'b1; // increment counter
 					statesig <= 2'b10; // stay in current state
+				end
+			end
+			
+			if(draw_scores) begin
+				statesig <= 2'b11; // stay in current state while drawing
+				
+				// if finished drawing current digit, reset drawing counter and move to next digit
+				if (counter == 4'b1111) begin
+					// draw one last bit before reset
+					x_reg <= x_reg + 1;
+					y_reg <= y_reg;
+					digit_reg <= digit_reg << 1
+					if (digit_reg[15] == 1) color_reg <= 3'b111; // if corresponding bit = 1, color in white
+					if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in black
+				
+					counter <= 4'b0000;
+					counter_digits <= counter_digits + 1; // try to draw the next digit
+					
+					// if finished drawing all digits, reset digit counter and move to next state
+					if(counter_digits == 2'b00) begin
+						counter_digits <= 2'b00;
+						statesig <= 2'b00; // move to next state
+					end
+				end
+
+				// if we have not finished drawing the current digit, continue
+				else begin
+					case(counter_digits)
+						0: begin // draw first digit of hiscore
+								x_reg <= original_x_digits[7:0] + counter[1:0];
+								y_reg <= original_y_digits[7:0] + counter[3:2];
+								digit_reg <= tens_hi << counter;
+							end
+						1: begin // draw second digit of hiscore
+								x_reg <= original_x_digits[15:8] + counter[1:0];
+								y_reg <= original_y_digits[7:0] + counter[3:2];
+								digit_reg <= ones_hi << counter;
+							end
+						2: begin // draw first digit of score
+								x_reg <= original_x_digits[7:0] + counter[1:0];
+								y_reg <= original_y_digits[15:8] + counter[3:2];
+								digit_reg <= tens_score << counter;
+							end
+						3: begin // draw second digit of score
+								x_reg <= original_x_digits[15:8] + counter[1:0];
+								y_reg <= original_y_digits[15:8] + counter[3:2];
+								digit_reg <= ones_score << counter;
+							end
+							
+						if (digit_reg[15] == 1) color_reg <= 3'b111; // if corresponding bit = 1, color in white
+						if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in black
+					endcase
+
+					counter <= counter + 1'b1; // increment drawing counter to draw next pixel
 				end
 			end
         end
