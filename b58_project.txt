@@ -141,11 +141,13 @@ Provide a complete list of any external resources your project used
 code).  
 
 We did not copy the code, but we got some ideas on  how to randomize 
-from looking at this:
+from looking at this:http://www.asic-world.com/examples/verilog/lfsr.html
 
 Also our decimal to binary converter module is from this:
 http://www.deathbylogic.com/2013/12/binary-to-binary-coded-decimal-bcd-converter/
 
+And our VGA adaptor is from the course website (Brian Harrington)
+http://www.utsc.utoronto.ca/~bharrington/cscb58/labs.shtml
 
 Updates
 -------
