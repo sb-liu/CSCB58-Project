@@ -190,7 +190,7 @@ module color_bounce1
         .erase_ball(erase_ball),
         .draw_ball(draw_ball),
         .draw_plat(draw_plat),
-		.draw_scores(draw_scores)
+		.draw_scores(draw_scores),
         .x_reg(x),
         .y_reg(y),
         .color_reg(colour),
@@ -211,22 +211,22 @@ module color_bounce1
 	 
 	 dec_display t_hi(
 		.dec_num(tens_hi),
-		.bitrep(tens_hi_bit)
+		.bit_rep(tens_hi_bit)
 	 );
 	 
 	 dec_display o_hi(
 		.dec_num(ones_hi),
-		.bitrep(ones_hi_bit)
+		.bit_rep(ones_hi_bit)
 	 );
 	 
 	 dec_display t_score(
 		.dec_num(tens_score),
-		.bitrep(tens_score_bit)
+		.bit_rep(tens_score_bit)
 	 );
 	 
 	 dec_display o_score(
 		.dec_num(ones_score),
-		.bitrep(ones_score_bit)
+		.bit_rep(ones_score_bit)
 	 );
 	 
 	 
@@ -474,7 +474,7 @@ module datapath(
 	input [2:0] color_ball,
 	input [11:0] color_plats,
 	input [31:0] position_plats,
-	input [15:0] tens_hi, ones_hi, tens_score, ones_score
+	input [15:0] tens_hi, ones_hi, tens_score, ones_score,
     input erase_ball,
     input draw_ball,
 	input draw_plat,
@@ -603,7 +603,7 @@ module datapath(
 					// draw one last bit before reset
 					x_reg <= x_reg + 1;
 					y_reg <= y_reg;
-					digit_reg <= digit_reg << 1
+					digit_reg <= digit_reg << 1;
 					if (digit_reg[15] == 1) color_reg <= 3'b111; // if corresponding bit = 1, color in white
 					if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in black
 				
@@ -640,11 +640,9 @@ module datapath(
 								y_reg <= original_y_digits[15:8] + counter[3:2];
 								digit_reg <= ones_score << counter;
 							end
-							
-						if (digit_reg[15] == 1) color_reg <= 3'b111; // if corresponding bit = 1, color in white
-						if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in black
 					endcase
-
+					if (digit_reg[15] == 1) color_reg <= 3'b111; // if corresponding bit = 1, color in white
+					if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in black
 					counter <= counter + 1'b1; // increment drawing counter to draw next pixel
 				end
 			end
