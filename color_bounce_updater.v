@@ -3,7 +3,7 @@ module updater (
 	input[31:0] position_plats,
 	input[11:0] color_plats,
 	input[2:0] color_ball,
-	input[1:0] statesig, // signal from controller to update values
+	input[2:0] statesig, // signal from controller to update values
 	input clk,
 	input clk2,
 	input[3:0] keys,
@@ -42,7 +42,7 @@ module updater (
 		end
 		else begin
 			touch = 0;
-			if(statesig == 2'b11) begin
+			if(statesig == 3'b100) begin
 				// If key is pressed, check if ball is touching corresponding platform of the same colour
 				//Key 3 pressed 0111	//Key 1 pressed 1101
 				//Key 2 pressed 1011	//Key 0 pressed 1110

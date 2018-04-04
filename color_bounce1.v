@@ -97,7 +97,7 @@ module color_bounce1
 
     // Instantiate datapath
 
-    wire[1:0] statesig;
+    wire[2:0] statesig;
     wire erase_ball, draw_plat, draw_ball, draw_scores;
     // Instantiate FSM control
     control c0(
@@ -404,7 +404,7 @@ endmodule
 module control(
     input clk,
     input resetn,
-    input[1:0] statesig,
+    input[2:0] statesig,
 	input idletoerase,
     output reg erase_ball,
 	output reg draw_ball,
@@ -412,25 +412,27 @@ module control(
 	output reg draw_scores
     );
 
-    reg [1:0] current_state, next_state;
+    reg [2:0] current_state, next_state;
 
-    localparam  S_ERASE_BALL     	= 2'd0,
-                S_DRAW_PLAT			= 2'd1,
-                S_DRAW_BALL  		= 2'd2,
-				S_IDLE				= 2'd3;
+    localparam  S_ERASE_BALL     	= 3'd0,
+                S_DRAW_PLAT			= 3'd1,
+                S_DRAW_BALL  		= 3'd2,
+					 S_DRAW_SCORES		= 3'd3,
+					 S_IDLE   			= 3'd4;
 
     // Next state logic aka our state table
     always @(*)
     begin: state_table
             case (current_state)
 
-                S_ERASE_BALL: next_state = (statesig == 2'b01) ? S_DRAW_PLAT : S_ERASE_BALL;
+                S_ERASE_BALL: next_state = (statesig == 3'b001) ? S_DRAW_PLAT : S_ERASE_BALL;
 
-				S_DRAW_PLAT: next_state = (statesig == 2'b10) ? S_DRAW_BALL : S_DRAW_PLAT;
+				S_DRAW_PLAT: next_state = (statesig == 3'b010) ? S_DRAW_BALL : S_DRAW_PLAT;
 
-                S_DRAW_BALL: next_state = (statesig == 2'b11) ? S_IDLE : S_DRAW_BALL;
+                S_DRAW_BALL: next_state = (statesig == 3'b011) ? 	S_DRAW_SCORES : S_DRAW_BALL;
 
-				S_IDLE : next_state = ((statesig == 2'b00) && (idletoerase == 1'b1)) ? S_ERASE_BALL : S_IDLE;
+					S_DRAW_SCORES: next_state = (statesig == 3'b100) ? S_IDLE : S_DRAW_SCORES;
+					S_IDLE: next_state = (idletoerase == 1) ? S_ERASE_BALL : S_IDLE;
 
             default:     next_state = S_ERASE_BALL;
         endcase
@@ -448,7 +450,7 @@ module control(
          S_ERASE_BALL: erase_ball = 1'b1;
 			S_DRAW_BALL: draw_ball = 1'b1;
 			S_DRAW_PLAT: draw_plat = 1'b1;
-			S_IDLE: draw_scores = 1'b1;
+			S_DRAW_SCORES: draw_scores = 1'b1;
 			// default:    // don't need default since we already made sure all of our outputs were assigned a value at the start of the always block
         endcase
     end // enable_signals
@@ -487,7 +489,7 @@ module datapath(
 
 	// initialize color_reg and statesig
 	initial color_reg = 3'b000;
-	initial statesig = 2'b00;
+	initial statesig = 3'b000;
 
 	// initialize internal values for calculations
 	reg [3:0] counter = 4'b0000; // to count how many pixels we've drawn
@@ -499,6 +501,7 @@ module datapath(
 	reg [15:0] original_y_digits = 16'b0001010000011110; // hard-coded y-coordinates for score digits (MSB: hiscore, LSB: score; 20, 30)
 	reg [15:0] digit_reg; // to hold info for digit currently being examined
 	
+	reg [3:0] draw_score_counter = 4'b0000;
     always@(posedge clk) begin
         if(!resetn) begin
             x_reg <= original_x;
@@ -514,7 +517,7 @@ module datapath(
 					color_reg <= 3'b000; // erase the ball by drawing it in black
 
 					counter <= 4'b0000;
-					statesig <= 2'b01; // move to next state
+					statesig <= 3'b001; // move to next state
 				end
 				else begin
 					x_reg <= original_x + counter[1:0];
@@ -522,7 +525,7 @@ module datapath(
 					color_reg <= 3'b000; // erase the ball by drawing it in black
 
 					counter <= counter + 1'b1; // increment counter
-					statesig <= 2'b00; // stay in current state
+					statesig <= 3'b000; // stay in current state
 				end
 			end
 
@@ -531,7 +534,7 @@ module datapath(
 
 
 				// if we have not drawn all the platforms, draw the next platform
-				statesig <= 2'b01; // stay in current state
+				statesig <= 3'b001; // stay in current state
 
 				// if: we have finished drawing the current platform, reset drawing counter and try to draw the next platform
 				if (counter == 4'b1111) begin
@@ -539,7 +542,7 @@ module datapath(
 					counter_plat <= counter_plat + 1; // increment counter_plat to try to draw the next platform
 					if(counter_plat == 2'b11) begin
 						counter_plat <= 2'b00;
-						statesig <= 2'b10; // move to next state
+						statesig <= 3'b010; // move to next state
 						y_reg <= position_plats[31:24];
 						color_reg <= color_plats[11:9];
 					end
@@ -583,7 +586,7 @@ module datapath(
 					color_reg <= color_ball;
 
 					counter <= 4'b0000; // reset counter
-					statesig <= 2'b11; // move to next state
+					statesig <= 3'b011; // move to next state
 				end
 				else begin
 					x_reg <= original_x + counter[1:0];
@@ -591,15 +594,15 @@ module datapath(
 					color_reg <= color_ball;
 
 					counter <= counter + 1'b1; // increment counter
-					statesig <= 2'b10; // stay in current state
+					statesig <= 3'b010; // stay in current state
 				end
 			end
 			
 			if(draw_scores) begin
-				statesig <= 2'b11; // stay in current state while drawing
+				statesig <= 3'b011; // stay in current state while drawing
 				
 				// if finished drawing current digit, reset drawing counter and move to next digit
-				if (counter == 4'b1111) begin
+				if (draw_score_counter == 4'b1111) begin
 					// draw one last bit before reset
 					x_reg <= x_reg + 1;
 					y_reg <= y_reg;
@@ -607,13 +610,14 @@ module datapath(
 					if (digit_reg[15] == 1) color_reg <= 3'b111; // if corresponding bit = 1, color in white
 					if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in black
 				
-					counter <= 4'b0000;
+					draw_score_counter <= 4'b0000;
 					counter_digits <= counter_digits + 1; // try to draw the next digit
 					
 					// if finished drawing all digits, reset digit counter and move to next state
-					if(counter_digits == 2'b00) begin
-						counter_digits <= 2'b00;
-						statesig <= 2'b00; // move to next state
+					//if(counter_digits == 2'b00) begin
+						//counter_digits <= 2'b00;
+					if (counter_digits == 2'b00) begin
+						statesig <= 3'b100; // move to next state
 					end
 				end
 
@@ -621,29 +625,29 @@ module datapath(
 				else begin
 					case(counter_digits)
 						0: begin // draw first digit of hiscore
-								x_reg <= original_x_digits[7:0] + counter[1:0];
-								y_reg <= original_y_digits[7:0] + counter[3:2];
-								digit_reg <= tens_hi << counter;
+								x_reg <= original_x_digits[7:0] + draw_score_counter[1:0];
+								y_reg <= original_y_digits[7:0] + draw_score_counter[3:2];
+								digit_reg <= tens_hi << draw_score_counter;
 							end
 						1: begin // draw second digit of hiscore
-								x_reg <= original_x_digits[15:8] + counter[1:0];
-								y_reg <= original_y_digits[7:0] + counter[3:2];
-								digit_reg <= ones_hi << counter;
+								x_reg <= original_x_digits[15:8] + draw_score_counter[1:0];
+								y_reg <= original_y_digits[7:0] + draw_score_counter[3:2];
+								digit_reg <= ones_hi << draw_score_counter;
 							end
 						2: begin // draw first digit of score
-								x_reg <= original_x_digits[7:0] + counter[1:0];
-								y_reg <= original_y_digits[15:8] + counter[3:2];
-								digit_reg <= tens_score << counter;
+								x_reg <= original_x_digits[7:0] + draw_score_counter[1:0];
+								y_reg <= original_y_digits[15:8] + draw_score_counter[3:2];
+								digit_reg <= tens_score << draw_score_counter;
 							end
 						3: begin // draw second digit of score
-								x_reg <= original_x_digits[15:8] + counter[1:0];
-								y_reg <= original_y_digits[15:8] + counter[3:2];
-								digit_reg <= ones_score << counter;
+								x_reg <= original_x_digits[15:8] + draw_score_counter[1:0];
+								y_reg <= original_y_digits[15:8] + draw_score_counter[3:2];
+								digit_reg <= ones_score << draw_score_counter;
 							end
 					endcase
 					if (digit_reg[15] == 1) color_reg <= 3'b111; // if corresponding bit = 1, color in white
 					if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in black
-					counter <= counter + 1'b1; // increment drawing counter to draw next pixel
+					draw_score_counter <= draw_score_counter + 1'b1; // increment drawing counter to draw next pixel
 				end
 			end
         end
