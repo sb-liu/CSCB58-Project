@@ -44,18 +44,6 @@ module color_bounce1
 	output	[9:0]	VGA_G;	 				//	VGA Green[9:0]
 	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
 
-	//wire resetn;
-	//assign resetn = KEY[0];
-
-
-	// Initial input wires
-	//wire [7:0] data_in;
-	//assign data_in = SW[6:0]; // to datapath: input initial x,y values
-
-	//wire go;
-	//assign go = ~KEY[3]; // to controller: go signal for controller to cycle through states
-									// controller moves to the next state if either KEY[3] or KEY[1] is pressed.
-									// because input is loaded with KEY[3] but writeEnable/plot signal is KEY[1]
 
 	wire [2:0] colour;
 
@@ -66,10 +54,6 @@ module color_bounce1
 	wire [6:0] x; // x output from datapath to VGA
 	wire [7:0] y; // y output from datapath to VGA
 
-
-	// Create an Instance of a VGA controller - there can be only one!
-	// Define the number of colours as well as the initial background
-	// image file (.MIF) for the controller.
 	vga_adapter VGA(
 			.resetn(1'b1),
 			.clock(CLOCK_50),
@@ -92,11 +76,6 @@ module color_bounce1
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
 
-	// Put your code here. Your code should produce signals x,y,colour and writeEn/plot
-	// for the VGA controller, in addition to any other functionality your design may require.
-
-    // Instantiate datapath
-
     wire[2:0] statesig;
     wire erase_ball, draw_plat, draw_ball, draw_scores;
     // Instantiate FSM control
@@ -118,15 +97,6 @@ module color_bounce1
 	wire [15:0] score_up2mem, score_memout;
 	wire [31:0] position_plats_memout, position_plats_up2mem;
 	wire idletoerase;
-
-	/*
-	assign prev_ball_up2mem = 8'd0;
-	assign curr_ball_up2mem = 8'b01000010;
-	assign color_ball_up2mem = 3'b001;
-	assign color_plats_up2mem = 12'b100001010011;
-	assign position_plats_up2mem = 28'b0011000000001100001010000111;
-   assign score_up2mem = 0;
-	*/
 
     updater up_game(
         .curr_ball(curr_ball_memout),
@@ -306,29 +276,6 @@ module color_bounce1
 endmodule
 
 
-//-----------------------------------------------------------------------------------------
-/*
-module game_reset(
-	start_key,
-	gameover,
-	clk,
-	reset_is_on
-);
-	input start_key, gameover, clk;
-	output reg reset_is_on;
-	initial reset_is_on = 1;
-
-	always@(posedge clk) begin
-		case({gameover, start_key})
-			1:reset_is_on = 0;
-			2:reset_is_on = 1;
-			3:reset_is_on = 1;
-			default: reset_is_on = reset_is_on;
-		endcase
-	end
-endmodule
-
-*/
 module dec_display(dec_num, bit_rep);
 	// given a digit, outputs a bit representation so the number can be drawn in pixels
 	input [3:0] dec_num;
@@ -569,12 +516,6 @@ module datapath(
 								color_reg <= color_plats[11:9];
 							end
 					endcase
-					//y_reg <= position_plats[: (counter_plat * 8)]; // ex: start y-coordinate for platform 1 will be in [7:0],
-																						// start y-coordinate for platform 2 will be in [15:8], etc.
-																						// platforms are only 1 pixel high
-					//color_reg <= color_plats[(counter_plat * 3) + 2: (counter_plat * 3)]; // ex: colours for platform 1 will be in [2:0],
-																						  // colours for platform 2 will be in [5:3], etc.
-
 					counter <= counter + 1'b1; // increment drawing counter to draw next pixel
 				end
 			end
@@ -614,8 +555,6 @@ module datapath(
 					counter_digits <= counter_digits + 1; // try to draw the next digit
 					
 					// if finished drawing all digits, reset digit counter and move to next state
-					//if(counter_digits == 2'b00) begin
-						//counter_digits <= 2'b00;
 					if (counter_digits == 2'b00) begin
 						statesig <= 3'b100; // move to next state
 					end

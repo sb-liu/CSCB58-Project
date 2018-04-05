@@ -73,15 +73,7 @@ module pseudo_rand(
 //	wire[3:0] xno = ~out[3:0];
 	reg tf;
 	reg mux2out;
-	/*
-	always@(posedge clk) begin
-		tf = ~tf;
-		case(tf)
-			0:linear_color_platsfeedback1= (out[25] ^ out[10]);
-			1:linear_color_platsfeedback2= ~(out[25] ^ out[10]);
-		endcase
-	end
-	*/
+
 	initial out = 32'd1668220261;
 	
 	always @(posedge clk) begin
@@ -94,91 +86,12 @@ module pseudo_rand(
 		end 
 	end
 endmodule 
-/*
-module color_rand(
-    new_color_ball,
-    new_color_plats,
-    clk
-);
-    input clk;
-    output[11:0] new_color_plats;
-    output[2:0] new_color_ball;
-    wire[11:0] cplats_out;
-    
-    color_rand_plats cplats(
-        .clk(clk),
-        .new_color_plats(new_color_plats)
-    );
-    color_rand_ball cball(
-        .clk(clk),
-        .new_color_plats(new_color_plats),
-        .new_color_ball(new_color_ball)
-    );
 
-endmodule
-
-module color_rand_ball(
-    clk,  new_color_plats[2:0] <= rand_out[7:0] % 4'd8;
-    new_color_plats,
-    new_color_ball
-);
-    input clk;
-    input[11:0] new_color_plats;
-    output reg [2:0] new_color_ball;
-    wire[31:0] rand_out;
-    
-    pseudo_rand my_rmodule hex_display(IN, OUT);	 input clk;
-    input [3:0] IN;
-	 output reg [7:0] OUT;
-
-	 always @(*)
-	 begin
-		case(IN[3:0])
-			4'b0000: OUT = 7'b1000000;
-			4'b0001: OUT = 7'b1111001;
-			4'b0010: OUT = 7'b0100100;
-			4'b0011: OUT = 7'b0110000;
-			4'b0100: OUT = 7'b0011001;
-			4'b0101: OUT = 7'b0010010;
-			4'b0110: OUT = 7'b0000010;
-			4'b0111: OUT = 7'b1111000;
-			4'b1000: OUT = 7'b0000000;
-			4'b1001: OUT = 7'b0011000;
-			4'b1010: OUT = 7'b0001000;
-			4'b1011: OUT = 7'b0000011;
-			4'b1100: OUT = 7'b1000110;
-			4'b1101: OUT = 7'b0100001;
-			4'b1110: OUT = 7'b0000110;
-			4'b1111: OUT = 7'b0001110;
-
-			default: OUT = 7'b0111111;
-		endcase
-
-	end
-endmoduleand(
-		.out(rand_out),
-		.enable(1'b1),
-		.clk(clk),
-		.reset(1'b0),
-		.seed(8'b10110101)	
-	);
-    reg position;
-    always@(*) begin
-        case(position)
-            0:new_color_ball = new_color_plats[2:0];
-            1:new_color_ball = new_color_plats[5:3];
-            2:new_color_ball = new_color_plats[8:6];
-            3:new_color_ball = new_color_plats[11:9];
-        endcase
-    end
-endmodule
-*/
 module color_rand(
 	new_color_ball,
     new_color_plats,
     clk
     );
-	 // bit 3 and 5 always 1
 	 input clk;
 	 output reg [2:0] new_color_ball;
     output reg [11:0] new_color_plats;
@@ -210,12 +123,7 @@ module color_rand(
 			section1 <= (rand_out[15:8] % 4'd7) + 1;
 			section2 <= (rand_out[23:16] % 4'd7) + 1;
 			section3 <= (rand_out[31:24] % 4'd7) + 1;
-			
-			/*
-			if (selected_color == 0) selected_color <= selected_color + 1;
-			if (section1 == 0) section1 <= section1 + 1;
-			if (section2 == 0) section2 <= section2 + 4;
-			if (section3 == 0) section3 <= section3 + 2;*/
+
 		  case (position)
 				0: begin
 						  new_color_plats[2:0] <= selected_color;

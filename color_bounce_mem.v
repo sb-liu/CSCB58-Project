@@ -26,11 +26,9 @@ module memory(
             curr_ball_out <= curr_ball_in;
             color_ball_out <= color_ball_in;
             color_plats_out <= color_plats_in;
-//           position_plats_out <= position_plats_in;
-//				position_plats_out <= 28'b0011110011110010110101100100;
-				//position_plats_out <= 28'b0100011011110010101011101110; // 50 60 70 80
-				// new positions: 80 100 120 140
-				// new up counter: 65
+
+			// new positions: 80 100 120 140
+			// new up counter: 65
             score_out <= score_in;
          end else begin
             prev_ball_out <= prev_ball_in;
