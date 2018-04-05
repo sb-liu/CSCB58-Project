@@ -73,7 +73,7 @@ module color_bounce1
 		defparam VGA.RESOLUTION = "160x120";
 		defparam VGA.MONOCHROME = "FALSE";
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
-		defparam VGA.BACKGROUND_IMAGE = "black.mif";
+		defparam VGA.BACKGROUND_IMAGE = "image.colour.mif";
 
 
     wire[2:0] statesig;
@@ -285,16 +285,16 @@ module dec_display(dec_num, bit_rep);
 	 begin
 		case(dec_num[3:0])
 			// drawing order: col3: 1234, col2: 1234, col1: 1234, col4, 2341
-			4'b0000: bit_rep = 16'b1101 0011 0010 1100;
-			4'b0001: bit_rep = 16'b1100 1010 1001 1110;
-			4'b0010: bit_rep = 16'b1111 0000 1111 1110;
-			4'b0011: bit_rep = 16'b1111 1001 0001 1111;
-			4'b0100: bit_rep = 16'b0011 0011 1111 0001;
-			4'b0101: bit_rep = 16'b1110 0111 1001 1111;
-			4'b0110: bit_rep = 16'b1100 0011 1011 1111;
-			4'b0111: bit_rep = 16'b1111 0000 1000 0101;
-			4'b1000: bit_rep = 16'b1111 1011 0111 1100;
-			4'b1001: bit_rep = 16'b1111 0011 1111 0000;
+			4'b0000: bit_rep = 16'b1101001100101100;
+			4'b0001: bit_rep = 16'b1100101010011110;
+			4'b0010: bit_rep = 16'b1111000011111110;
+			4'b0011: bit_rep = 16'b1111100100011111;
+			4'b0100: bit_rep = 16'b0011001111110001;
+			4'b0101: bit_rep = 16'b1110011110011111;
+			4'b0110: bit_rep = 16'b1100001110111111;
+			4'b0111: bit_rep = 16'b1111000010000101;
+			4'b1000: bit_rep = 16'b1111101101111100;
+			4'b1001: bit_rep = 16'b1111001111110000;
 			
 			/*4'b0000: bit_rep = 16'b0110 1001 1001 0110;
 			4'b0001: bit_rep = 16'b0110 1010 0010 1111;
@@ -306,7 +306,7 @@ module dec_display(dec_num, bit_rep);
 			4'b0111: bit_rep = 16'b1111 0001 0010 0100;
 			4'b1000: bit_rep = 16'b1110 1011 1101 0111;
 			4'b1001: bit_rep = 16'b1110 1001 1111 0001;*/
-			default: bit_rep = 16'b1000 1000 1001 1001; // only need numbers 0-9
+			default: bit_rep = 16'b1000100010011001; // only need numbers 0-9
 		endcase
 	end
 endmodule 
@@ -560,6 +560,7 @@ module datapath(
 					x_reg <= x_reg + 1;
 					y_reg <= y_reg;
 					digit_reg <= digit_reg << 1;
+					
 					if (digit_reg[15] == 1) color_reg <= 3'b111; // if corresponding bit = 1, color in white
 					if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in black
 				
@@ -597,7 +598,8 @@ module datapath(
 							end
 					endcase
 					if (digit_reg[15] == 1) color_reg <= 3'b111; // if corresponding bit = 1, color in white
-					if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in black
+					if (digit_reg[15] == 0) color_reg <= 3'b000; // if corresponding bit = 0, color in blac
+					if (draw_score_counter == 4'b0000) color_reg <= 3'b000;
 					draw_score_counter <= draw_score_counter + 1'b1; // increment drawing counter to draw next pixel
 				end
 			end
