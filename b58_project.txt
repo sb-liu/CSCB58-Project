@@ -45,12 +45,13 @@ platform at a certain time.
 If the ball falls to the bottom then you lose. You get points the longer 
 you bounce.
 
-Video URL:
+Video URL: https://www.youtube.com/watch?v=yrgo1Ty_254&feature=youtu.be
 
 Code URL (please upload a copy of this file to your repository at the 
 end of the project as well, it will
 serve as a useful resource for future development):
 
+https://github.com/sb-liu/CSCB58-Project
 
 Proposal
 --------
@@ -121,12 +122,12 @@ play the game. This is interesting, because just by carefully planning
 out what each small component contribute to the bigger picture, we
 end up with a cool game. And although this game is branched off of the
 concepts that we have learned in this course, non CSCB58 will find this
-cool because we are taking physical parts of a computer and displaying 
+cool because we are using physical parts of a computer and displaying 
 shapes that can move/interact with a user 
 
 Why did you personally choose this project?:
 We unanimously decided that we wanted to create a game for our project
-mainly because we agreed that it would be fun, especially when we finish,
+mainly because we agreed that it would be fun, especially since when we finish,
 we get to play it ourselves. Instead of adding on to a game that has 
 already been created by a peer, we wanted to create game based off of an 
 original idea for this project. Reason being is that we wanted to
@@ -222,3 +223,30 @@ We have a reset/pause/game over state
 
 By the end of the week, as planned, we finished the animation part of
 the game and we are satisfied that our game is basically complete.
+
+Last Week: In this week, we made one more module so that the hiscore can be 
+displayed on the screen (in Week 3 we displayed our score in the hex display 
+of the DE2) and presented:
+
+We presented the following features:
+
+- random platform colours, when the game initially starts, it will have the same
+initial colours however, after the colours are random
+- however, our platforms will not be black because then the player will not see it
+- random ball colours
+- again our ball colour would not be black
+- the players would not be able to mesh all the keys, in order to catch the ball,
+we only allow for one key to be pressed at a time to register input
+- a jump is made when any part of the ball touches the platform + correct key is pressed
+- game speeds up the longer you play
+- the ball colour must match at least one platform (so the player doesn’t lose unfairly)
+- Both scores (high and current scores) are updated live, and the high score is remembered.
+- the ball doesn’t jump back to the same starting point each time but rather jumps up from
+a fixed distance (away from where it bounced)
+- after dying, ball resets to original position
+- any key that is pressed after the ball is reset will start the game
+- a jump is registered only when it is going downwards (aka, you cannot match the
+ next ball to a platform on your way up from the bounce)
+- reset is SW[0]
+- pause is SW[1], pause the game any time you need and continue to play after
+
